@@ -1,9 +1,11 @@
 name: Prod seed and pipeline
 
 on:
-  schedule:
-    # Every 2 hours (UTC)
-    - cron: "0 */2 * * *"
+  # Disabled by default in this template repo (no Databricks secrets configured yet).
+  # Once you've completed the full automation setup in README.md, uncomment the
+  # `schedule` block below to match the author's every-2-hours auto pipeline.
+  # schedule:
+  #   - cron: "0 */2 * * *"
   workflow_dispatch:
 
 concurrency:
@@ -38,10 +40,10 @@ jobs:
           fi
           echo "All required Databricks secrets are set."
 
-      - name: Checkout dev
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: dev
+          ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Seed testcase JSON
@@ -60,7 +62,7 @@ jobs:
             exit 1
           fi
           git commit -m "chore(prod): seed ${{ steps.seed.outputs.case_id }}"
-          git push origin dev
+          git push origin main
 
       - name: Databricks Git folder pull
         env:
@@ -74,7 +76,7 @@ jobs:
             "${host}/api/2.0/repos/${DATABRICKS_REPO_ID}" \
             -H "Authorization: Bearer ${DATABRICKS_TOKEN}" \
             -H "Content-Type: application/json" \
-            -d '{"branch":"dev"}')
+            -d '{"branch":"main"}')
           body="${res%$'\n'*}"
           code="${res##*$'\n'}"
           echo "Repos update HTTP ${code}"

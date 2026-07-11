@@ -10,7 +10,7 @@ All prod notebooks live here (separate from dev `databricks/notebooks/`).
 GHA (every 2h)                    Databricks Job (no schedule)
 ─────────────────                 ─────────────────────────────
 seed_test_case.py                 01 bronze_ingest
-  → commit push dev                 → 02 silver_transform
+  → commit push main                 → 02 silver_transform
   → Repos API Pull                  → 03 gold_embed
   → jobs/run-now                    → 05 deploy_serving
                                     → 09 sync_cases_prod

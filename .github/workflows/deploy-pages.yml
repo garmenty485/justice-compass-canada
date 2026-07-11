@@ -2,7 +2,7 @@ name: Deploy Pages
 
 on:
   push:
-    branches: [dev]
+    branches: [main]
     paths:
       - "cloudflare/pages/**"
       - ".github/workflows/deploy-pages.yml"

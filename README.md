@@ -1,5 +1,7 @@
 # Justice Compass 🍁⚖️
 
+🀄 **[中文簡潔版](README.zh-TW.md)** — 只列操作步驟，跳過介紹，直接看怎麼跑起來。
+
 A Canadian legal case **RAG (Retrieval-Augmented Generation)** assistant, focused on **BC Liquor Control and Licensing Act** jurisprudence — built end-to-end on a **Databricks Lakehouse** (Medallion architecture + Lakebase) and served through **Cloudflare's edge** (Workers + Pages), with **AI-reviewed CI/CD** on every pull request.
 
 Ask a question like *"When can BC revoke a liquor licence?"* and get a plain-language answer with **cited sources**, generated from a synthetic demo corpus of BC case law in `data/sample/`.
@@ -72,7 +74,7 @@ This repo works out of the box against the **author's own** demo Worker/Pages de
 | 1 | `cloudflare/pages/js/config.js` | Author's Worker URL (`justice-compass-api.justicebrobro.workers.dev`) | Your own deployed Worker URL (Step 2 below) — or use `config.local.js` locally (already supported, just add the file) |
 | 2 | `.github/workflows/deploy-pages.yml` (`--project-name=justice-compass`) | Cloudflare Pages project name | Match whatever name you give your Pages project in Step 3, **or** just name your project `justice-compass` |
 | 3 | Databricks secret scope name `justice-compass` | Referenced by every notebook (`databricks/lakebase/secret_utils.py` etc.) | Create a scope with this **exact name** in your own workspace (Step 4) — simplest path, no code change needed |
-| 4 | GitHub Actions secrets (`DATABRICKS_HOST`, `DATABRICKS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `GEMINI_API_KEY`, ...) | N/A — never committed | Add your own in **Settings → Secrets and variables → Actions** (Step 7) |
+| 4 | GitHub Actions secrets (`DATABRICKS_HOST`, `DATABRICKS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `GEMINI_API_KEY`, ...) | N/A — never committed | Add your own in **Settings → Secrets and variables → Actions** (Steps 7–8) |
 | 5 | Any `garmenty485/justice-compass` references in `docs/*.md` comments | Author's original private repo path | Cosmetic only — safe to ignore, or replace with your fork's path |
 
 ---
@@ -147,19 +149,66 @@ npx wrangler deploy
 
 Full secrets reference: [`.env.example`](.env.example) · [`docs/secrets_map.md`](docs/secrets_map.md)
 
-### Step 7 — GitHub Actions (optional — CI/CD automation)
+### Step 7 — GitHub Actions: CI + auto-deploy (optional)
 
-Only needed if you want auto-deploy on push, AI-reviewed PRs, or the scheduled prod pipeline. Add these under **Settings → Secrets and variables → Actions → Secrets**:
+Add these under **Settings → Secrets and variables → Actions → Secrets**:
 
 | Secret | Enables |
 |--------|---------|
-| `CLOUDFLARE_API_TOKEN` | `deploy-cloudflare.yml` / `deploy-pages.yml` — auto-deploy on push |
-| `GEMINI_API_KEY` | `ai-pr-review.yml` — AI code review comments on PRs |
-| `DATABRICKS_HOST`, `DATABRICKS_TOKEN`, `DATABRICKS_REPO_ID`, `DATABRICKS_PROD_JOB_ID` | `prod-seed-and-pipeline.yml` — scheduled prod pipeline (see [`databricks/prod_notebooks_job/README.md`](databricks/prod_notebooks_job/README.md)) |
+| `CLOUDFLARE_API_TOKEN` | `deploy-cloudflare.yml` / `deploy-pages.yml` — auto-deploy Worker/Pages on every push to `main` |
+| `GEMINI_API_KEY` | `ai-pr-review.yml` — AI (Gemini) leaves a review comment on every PR |
 
-All are independent — skip any workflow you don't need.
+`ci.yml` (lint + unit tests + sample-data smoke test) runs with no secrets needed. Skip either row above if you don't want that workflow.
 
-### Step 8 — Verify
+### Step 8 — Full automation: scheduled prod pipeline (optional, advanced)
+
+This is the **same automation the author runs**: every 2 hours, a GitHub Action seeds a new synthetic test case, pushes it, tells Databricks to pull the latest Git folder, and triggers a Databricks Job that runs the whole pipeline (`01→02→03→05→09`) end to end — with no human involved.
+
+**It's disabled by default** in this template (the schedule trigger is commented out in [`.github/workflows/prod-seed-and-pipeline.yml`](.github/workflows/prod-seed-and-pipeline.yml)), because it needs 4 more secrets that only make sense *after* you've completed Steps 4–6. Once you're ready to reach full parity with the author's setup:
+
+1. **Get a Databricks PAT + host** (if you don't already have one from Step 6):
+   - Databricks → your username (top right) → **Settings** → **Developer** → **Access tokens** → **Generate new token**.
+   - `DATABRICKS_HOST` = your workspace URL, e.g. `https://<workspace>.cloud.databricks.com` (no trailing slash).
+
+2. **Find your `DATABRICKS_REPO_ID`** (the Git folder you cloned in Step 4):
+   - **UI**: open the repo folder in the Databricks workspace file browser — the number after `#folder/` in your browser's URL bar is the repo ID.
+   - **API** (if unsure of the path): 
+     ```bash
+     curl -s -H "Authorization: Bearer $DATABRICKS_TOKEN" \
+       "$DATABRICKS_HOST/api/2.0/repos" | python3 -m json.tool
+     ```
+     Find the entry whose `path` matches your Git folder and copy its `id`.
+
+3. **Create the prod Job + get `DATABRICKS_PROD_JOB_ID`**:
+   - Open [`databricks/prod_notebooks_job/create_prod_pipeline_job.py`](databricks/prod_notebooks_job/create_prod_pipeline_job.py) in your Git folder and **Run all**.
+   - It creates (or updates) the Job **`justice-compass-prod-pipeline`** and prints `job_id` — copy that value.
+   - Prerequisite: the Lakebase Synced Table from Step 5 must already exist ([`databricks/prod_notebooks_job/SETUP.md`](databricks/prod_notebooks_job/SETUP.md)), since this Job runs `05_deploy_serving` + `09_sync_cases_prod` too.
+
+4. **Add all 4 secrets** under **Settings → Secrets and variables → Actions → Secrets**:
+
+   | Secret | Value |
+   |--------|-------|
+   | `DATABRICKS_HOST` | From step 1 |
+   | `DATABRICKS_TOKEN` | From step 1 |
+   | `DATABRICKS_REPO_ID` | From step 2 |
+   | `DATABRICKS_PROD_JOB_ID` | From step 3 |
+
+5. **Test it manually first**: **Actions** tab → **Prod seed and pipeline** → **Run workflow** (this uses `workflow_dispatch`, no schedule needed). Confirm it goes green — it seeds a test case, pulls it into Databricks, runs the Job, and waits for `SUCCESS`.
+
+6. **Enable the every-2-hours schedule** (the final step to match the author's setup exactly): edit [`.github/workflows/prod-seed-and-pipeline.yml`](.github/workflows/prod-seed-and-pipeline.yml), uncomment the `schedule:` block:
+
+   ```yaml
+   on:
+     schedule:
+       - cron: "0 */2 * * *"
+     workflow_dispatch:
+   ```
+
+   Commit and push to `main`. From now on, your fork will auto-seed, auto-pull, and auto-run the full prod pipeline every 2 hours — no manual steps.
+
+More detail: [`docs/JOBS.md`](docs/JOBS.md) · [`databricks/prod_notebooks_job/README.md`](databricks/prod_notebooks_job/README.md)
+
+### Step 9 — Verify
 
 ```bash
 curl https://<your-worker>.workers.dev/health
@@ -217,6 +266,19 @@ python tests/pipeline_smoke_test.py   # sample data validation
 - [`docs/LAKEBASE.md`](docs/LAKEBASE.md) — Lake↔Base integration model, auth decisions
 - [`docs/JOBS.md`](docs/JOBS.md) — dev vs. prod Databricks Jobs, GHA automation
 - [`docs/secrets_map.md`](docs/secrets_map.md) — every secret, where it lives, what needs it
+
+---
+
+## Development workflow (built with Cursor Agent)
+
+This project was built with an AI coding agent ([Cursor](https://cursor.com)) working under a small set of self-imposed rules, kept out of this repo but easy to reproduce:
+
+- Keep each agent turn small enough for a human to review at a glance
+- Ask before guessing when a required piece of information (an account ID, a config value) isn't knowable from the repo alone
+- After any change, check whether the plan/decision doc is now stale and update it
+- Number every action and log a short summary to a `docs/progress/NNN-*.md` file (this repo's own build log isn't included here, but the convention carries over cleanly to any project)
+
+To set up something similar for your own fork, add a [Cursor rule](https://docs.cursor.com/context/rules) under `.cursor/rules/*.mdc` with `alwaysApply: true`.
 
 ---
 

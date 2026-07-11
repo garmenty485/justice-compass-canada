@@ -3,7 +3,7 @@
 # MAGIC # Prod 01 — Bronze Ingest
 # MAGIC Load JSON from Git folder `data/sample/` into Delta `bronze_cases`.
 # MAGIC
-# MAGIC **Prerequisite**: Git folder Pull latest (`dev` branch).
+# MAGIC **Prerequisite**: Git folder Pull latest (`main` branch).
 
 # COMMAND ----------
 

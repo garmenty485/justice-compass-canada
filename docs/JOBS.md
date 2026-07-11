@@ -18,7 +18,7 @@
 ```mermaid
 flowchart LR
   gha["GHA every 2h"] --> seed["seed_test_case.py"]
-  seed --> push["git push dev"]
+  seed --> push["git push main"]
   push --> pull["Repos API Pull"]
   pull --> run["jobs/run-now"]
   run --> job["justice-compass-prod-pipeline"]

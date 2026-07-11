@@ -15,7 +15,7 @@ Notebook `05` = register pyfunc + create serving endpoint for Cloudflare.
 
 ## Step 1 — Databricks (Git folder Pull → Run `05_deploy_serving`)
 
-1. Pull latest `dev` branch（含 `0a5acab` 或更新）
+1. Pull latest `main` branch
 2. Run pipelines `01`–`03` if tables are stale
 3. Run **`05_deploy_serving`** → **Run all**（順序：Export → MLflow upgrade → Log → Register → Endpoint）
 
@@ -88,7 +88,7 @@ curl "https://justice-compass-api.justicebrobro.workers.dev/query?q=liquor+licen
 ### Option A — Dashboard (recommended first time)
 
 1. Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages**
-2. Connect GitHub → `garmenty485/justice-compass` → branch `dev`
+2. Connect GitHub → your fork → branch `main`
 3. Build settings:
    - **Framework preset**: None
    - **Build command**: (leave empty)
