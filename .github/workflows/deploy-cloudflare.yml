@@ -1,11 +1,15 @@
 name: Deploy Cloudflare Worker
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "cloudflare/worker/**"
-      - ".github/workflows/deploy-cloudflare.yml"
+  # Disabled by default in this template repo (no CLOUDFLARE_API_TOKEN secret yet,
+  # and this path filter matches this file itself, so editing it would auto-fail).
+  # Once you've set the secret (README Step 7), uncomment `push` below to enable
+  # auto-deploy on every push to main.
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - "cloudflare/worker/**"
+  #     - ".github/workflows/deploy-cloudflare.yml"
   workflow_dispatch:
 
 jobs:

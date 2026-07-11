@@ -151,14 +151,15 @@ Full secrets reference: [`.env.example`](.env.example) · [`docs/secrets_map.md`
 
 ### Step 7 — GitHub Actions: CI + auto-deploy (optional)
 
-Add these under **Settings → Secrets and variables → Actions → Secrets**:
+`ci.yml` (lint + unit tests + sample-data smoke test) runs with no secrets needed — it's the only workflow enabled by default in this template, so your Actions tab should stay green out of the box.
 
-| Secret | Enables |
-|--------|---------|
-| `CLOUDFLARE_API_TOKEN` | `deploy-cloudflare.yml` / `deploy-pages.yml` — auto-deploy Worker/Pages on every push to `main` |
-| `GEMINI_API_KEY` | `ai-pr-review.yml` — AI (Gemini) leaves a review comment on every PR |
+`deploy-cloudflare.yml` and `deploy-pages.yml` are present but their `push` trigger is **commented out by default** (they'd otherwise fire the moment you edit those files, before you have a Cloudflare token). To enable auto-deploy on every push to `main`:
 
-`ci.yml` (lint + unit tests + sample-data smoke test) runs with no secrets needed. Skip either row above if you don't want that workflow.
+1. Add secret `CLOUDFLARE_API_TOKEN` under **Settings → Secrets and variables → Actions → Secrets**.
+2. In both `.github/workflows/deploy-cloudflare.yml` and `deploy-pages.yml`, uncomment the `push:` block (instructions are inline in the file).
+3. Commit + push — or just use **Actions → Deploy Cloudflare Worker/Pages → Run workflow** to trigger it manually anytime without enabling the automatic trigger.
+
+Add `GEMINI_API_KEY` under the same Secrets page to enable `ai-pr-review.yml` — AI (Gemini) leaves a review comment on every PR. This one only ever triggers on pull requests, never on a plain push, so it's safe to add without any extra steps.
 
 ### Step 8 — Full automation: scheduled prod pipeline (optional, advanced)
 

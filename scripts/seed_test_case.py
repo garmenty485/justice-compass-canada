@@ -25,14 +25,20 @@ def next_serial() -> int:
 
 def build_document(serial: int) -> dict:
     case_id = f"testcase{serial:04d}"
+    today = date.today().isoformat()
+    full_text = (
+        f"這是自動排程產生的測試案例 {case_id}（seeded {today}），"
+        "僅用於驗證 prod pipeline（bronze→silver→gold→serving→Lakebase sync）"
+        "端到端是否正常運作，不代表任何真實判決內容，內容可安全忽略。"
+    )
     return {
         "caseId": {"databaseId": "demo", "caseId": case_id},
         "title": f"Test Case {serial:04d}",
         "citation": f"TEST {serial:04d}",
-        "decisionDate": date.today().isoformat(),
+        "decisionDate": today,
         "url": f"https://justice-compass.demo/cases/{case_id}",
         "keywords": ["test", "synthetic"],
-        "fullText": f"這是測試範例{serial}",
+        "fullText": full_text,
         "jurisdiction": "British Columbia",
         "court": "Demo Court",
         "topics": ["prod seed"],
