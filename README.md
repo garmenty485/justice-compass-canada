@@ -6,6 +6,8 @@ A Canadian legal case **RAG (Retrieval-Augmented Generation)** assistant, focuse
 
 Ask a question like *"When can BC revoke a liquor licence?"* and get a plain-language answer with **cited sources**, generated from a synthetic demo corpus of BC case law in `data/sample/`.
 
+![Asking a question and getting a cited answer, with homepage freshness indicators](gif/01-hero-demo.gif)
+
 > **This is a portfolio / reference project**, not a production legal product. It ships pointed at the author's own demo deployment by default — follow the guide below to stand up your **own independent instance** (all free-tier).
 
 ---
@@ -142,6 +144,8 @@ curl https://<your-worker>.workers.dev/health
 2. Branch: `main` (or wherever you push) · **Build output directory**: `cloudflare/pages`
 3. Deploy → open the Pages URL
 
+![Creating a Cloudflare Pages project connected to your fork](gif/02-step3-pages-setup.gif)
+
 Then edit **`cloudflare/pages/js/config.js`** to point `window.JUSTICE_COMPASS_API` at *your* Worker URL from Step 2, commit, and redeploy.
 
 ### Step 4 — Databricks Free Edition (Medallion pipeline + RAG)
@@ -154,6 +158,8 @@ Then edit **`cloudflare/pages/js/config.js`** to point `window.JUSTICE_COMPASS_A
    `01_bronze_ingest` → `02_silver_transform` → `03_gold_embed` → `04_rag_serving` (interactive sanity check) → `05_deploy_serving` (registers the model + creates the **Model Serving** endpoint).
 4. If the endpoint doesn't come up from `05`, run `06_create_serving_endpoint_api` (REST-API fallback for a Free Edition UI quirk).
 5. Copy the endpoint's **invocation URL**, e.g. `https://<workspace>.cloud.databricks.com/serving-endpoints/justice-compass-rag-endpoint/invocations`.
+
+![Model Serving endpoint status Ready, with the invocation URL to copy](gif/04-step4-serving-endpoint-ready.gif)
 
 Full step-by-step + troubleshooting table: [`docs/DEPLOY_PHASE2.md`](docs/DEPLOY_PHASE2.md) · [`docs/SETUP.md`](docs/SETUP.md)
 
@@ -211,6 +217,8 @@ Full secrets reference: [`.env.example`](.env.example) · [`docs/secrets_map.md`
 2. In both `.github/workflows/deploy-cloudflare.yml` and `deploy-pages.yml`, uncomment the `push:` block (instructions are inline in the file).
 3. Commit + push — or just use **Actions → Deploy Cloudflare Worker/Pages → Run workflow** to trigger it manually anytime without enabling the automatic trigger.
 
+![Adding a repository secret under Settings → Secrets and variables → Actions](gif/07-github-secrets.gif)
+
 Add `GEMINI_API_KEY` under the same Secrets page to enable `ai-pr-review.yml` — AI (Gemini) leaves a review comment on every PR. This one only ever triggers on pull requests, never on a plain push, so it's safe to add without any extra steps.
 
 ### Step 8 — Full automation: scheduled prod pipeline (optional, advanced)
@@ -237,7 +245,7 @@ Add `GEMINI_API_KEY` under the same Secrets page to enable `ai-pr-review.yml` �
    - It creates (or updates) the Job **`justice-compass-prod-pipeline`** and prints `job_id` — copy that value.
    - Prerequisite: the Lakebase Synced Table from Step 5 must already exist ([`databricks/prod_notebooks_job/SETUP.md`](databricks/prod_notebooks_job/SETUP.md)), since this Job runs `05_deploy_serving` + `09_sync_cases_prod` too.
 
-4. **Add all 4 secrets** under **Settings → Secrets and variables → Actions → Secrets**:
+4. **Add all 4 secrets** under **Settings → Secrets and variables → Actions → Secrets** (same screen as the GIF in Step 7):
 
    | Secret | Value |
    |--------|-------|

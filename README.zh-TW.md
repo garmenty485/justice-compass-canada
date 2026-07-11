@@ -4,6 +4,8 @@
 
 > 這份文件只列**操作步驟**，不重複專案介紹（介紹請看英文版開頭）。全部帳號皆為免費方案。
 
+![問一個問題、拿到有引用來源的回答，首頁還有 freshness 時間顯示](gif/01-hero-demo.gif)
+
 ```mermaid
 flowchart LR
     U[User] --> P["Cloudflare Pages<br/>(vanilla JS UI)"]
@@ -105,6 +107,8 @@ curl https://<你的worker>.workers.dev/health
 2. Branch：`main`（或你實際 push 的分支）；**Build output directory**：`cloudflare/pages`
 3. Deploy
 
+![建立 Cloudflare Pages 專案並連到你的 fork](gif/02-step3-pages-setup.gif)
+
 改 `cloudflare/pages/js/config.js` 裡的 Worker URL 為你自己的（步驟 2），commit + 重新 deploy。
 
 ## 步驟 4 — Databricks Free Edition
@@ -120,6 +124,8 @@ curl https://<你的worker>.workers.dev/health
    `01_bronze_ingest` → `02_silver_transform` → `03_gold_embed` → `04_rag_serving`（互動測試）→ `05_deploy_serving`（註冊模型 + 建立 Model Serving endpoint）
 4. 若 `05` 沒成功建立 endpoint，跑 `06_create_serving_endpoint_api`（REST API 補救）
 5. 複製 endpoint 的 **invocation URL**（`.../serving-endpoints/.../invocations`）
+
+![Model Serving endpoint 狀態顯示 Ready，以及要複製的 invocation URL](gif/04-step4-serving-endpoint-ready.gif)
 
 詳細疑難排解：[`docs/DEPLOY_PHASE2.md`](docs/DEPLOY_PHASE2.md) · [`docs/SETUP.md`](docs/SETUP.md)
 
@@ -175,6 +181,8 @@ npx wrangler deploy
 2. 分別打開 `.github/workflows/deploy-cloudflare.yml` 跟 `deploy-pages.yml`，取消註解 `push:` 那一區塊（檔案裡有內嵌說明）。
 3. commit + push——或者不啟用自動觸發，直接用 **Actions → Deploy Cloudflare Worker/Pages → Run workflow** 隨時手動觸發。
 
+![在 Settings → Secrets and variables → Actions 新增 repository secret](gif/07-github-secrets.gif)
+
 在同一個 Secrets 頁面新增 `GEMINI_API_KEY` 可以啟用 `ai-pr-review.yml`——AI（Gemini）會在每個 PR 上留一則 review 留言。這個 workflow 只會在 PR 時觸發，一般 push 完全不會動，所以加了這個 secret 是安全的，不需要額外步驟。
 
 ## 步驟 8 — 完整自動化：排程 prod pipeline（進階，選填）
@@ -199,7 +207,7 @@ npx wrangler deploy
    - 會建立/更新 Job `justice-compass-prod-pipeline` 並印出 `job_id`
    - 前提：步驟 5 的 Lakebase Synced Table 要先建好（這個 Job 會跑 `05`/`09`）
 
-4. **新增 4 個 GitHub Secrets**：`DATABRICKS_HOST`、`DATABRICKS_TOKEN`、`DATABRICKS_REPO_ID`、`DATABRICKS_PROD_JOB_ID`
+4. **新增 4 個 GitHub Secrets**：`DATABRICKS_HOST`、`DATABRICKS_TOKEN`、`DATABRICKS_REPO_ID`、`DATABRICKS_PROD_JOB_ID`（跟步驟 7 的圖是同一個畫面）
 
 5. **先手動測試**：**Actions** 頁籤 → **Prod seed and pipeline** → **Run workflow**，確認跑綠
 
