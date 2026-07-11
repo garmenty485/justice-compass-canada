@@ -1,6 +1,6 @@
 # Databricks Jobs — 編排範圍與自動化
 
-> **更新（2026-07-09）**：Prod 全鏈由 **GHA 每 2h** 觸發；notebook 統一在 `databricks/prod_notebooks_job/`。
+> Prod 全鏈由 **GHA 每 2h** 觸發（見 README Step 8）；notebook 統一在 `databricks/prod_notebooks_job/`。
 
 ---
 
@@ -103,6 +103,8 @@ Workflow：`.github/workflows/prod-seed-and-pipeline.yml`
 ---
 
 ## Checklist
+
+> 下面是本專案（作者自己的 workspace）目前的完成狀態，不是你 fork 之後要打勾的清單——你的 setup 步驟請看主 README。
 
 - [x] Medallion Job 01→03  
 - [x] Prod Job 01→05→09 + GHA workflow（secrets 檢查 + Job 輪詢）  

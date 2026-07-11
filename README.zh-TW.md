@@ -4,6 +4,23 @@
 
 > 這份文件只列**操作步驟**，不重複介紹（面試官已經聽過口頭介紹）。全部帳號皆為免費方案。
 
+```mermaid
+flowchart LR
+    U[User] --> P["Cloudflare Pages<br/>(vanilla JS UI)"]
+    P --> W["Cloudflare Worker<br/>API proxy · auth · CORS"]
+    W -->|RAG query| S["Databricks Model Serving<br/>gold_embeddings + Foundation Model"]
+    W -->|audit insert| LB[("Lakebase Postgres<br/>query_logs")]
+    W -->|freshness read| LB
+
+    GHA["GitHub Action<br/>every 2h: seed case + run Job"] -.->|new case JSON| B
+
+    subgraph DBX["Databricks Free Edition"]
+        B[Bronze] --> SIL[Silver] --> G[Gold]
+        G --> S
+        B -. Synced Table .-> LB
+    end
+```
+
 ---
 
 ## 事前準備（帳號）
