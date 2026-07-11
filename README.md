@@ -33,10 +33,12 @@ flowchart LR
     W -->|audit insert| LB[("Lakebase Postgres<br/>query_logs")]
     W -->|freshness read| LB
 
+    GHA["GitHub Action<br/>every 2h: seed case + run Job"] -.->|new case JSON| B
+
     subgraph DBX["Databricks Free Edition"]
         B[Bronze] --> SIL[Silver] --> G[Gold]
         G --> S
-        G -. Synced Table .-> LB
+        B -. Synced Table .-> LB
     end
 ```
 
@@ -45,6 +47,7 @@ flowchart LR
 3. The Serving endpoint retrieves the top-k chunks from **Delta `gold_embeddings`** (cosine similarity) and asks a Foundation Model to answer using only that context.
 4. The answer + citations are returned to the UI; the query is logged to **Lakebase** for audit.
 5. The homepage shows **corpus / docs / model freshness**, read from Lakebase and MLflow via the Worker's `/meta` endpoint.
+6. *(Optional, Step 8 below)* Every 2 hours a **GitHub Action** seeds a new synthetic case JSON, which the Databricks Job ingests into **Bronze** (`01`) and carries through `02→03→05→09` — that same Bronze-derived case metadata is what **Synced Tables** replicates into Lakebase (not from Gold, which only holds vectors for retrieval).
 
 Deeper dives: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/LAKEBASE.md`](docs/LAKEBASE.md) · [`docs/JOBS.md`](docs/JOBS.md) · [`docs/DATA_GOVERNANCE.md`](docs/DATA_GOVERNANCE.md)
 
