@@ -86,6 +86,8 @@ This repo works out of the box against the **author's own** demo Worker/Pages de
 
 ### Step 1 — Fork & clone
 
+**Purpose**: get your own copy of the code and its dependencies — the starting point for every step below.
+
 ```bash
 git clone https://github.com/<you>/justice-compass-canada.git
 cd justice-compass-canada
@@ -93,6 +95,8 @@ npm install --prefix cloudflare/worker
 ```
 
 ### Step 2 — Cloudflare Worker (API)
+
+**Purpose**: deploy your own edge API proxy — every later step (UI, Databricks, Lakebase) wires into this Worker.
 
 ```bash
 cd cloudflare/worker
@@ -109,6 +113,8 @@ curl https://<your-worker>.workers.dev/health
 
 ### Step 3 — Cloudflare Pages (UI)
 
+**Purpose**: stand up the actual web page users (or you) will open to ask questions.
+
 **Dashboard** (recommended first time):
 
 1. **Workers & Pages** → **Create** → **Pages** → **Connect to Git** → your fork
@@ -118,6 +124,8 @@ curl https://<your-worker>.workers.dev/health
 Then edit **`cloudflare/pages/js/config.js`** to point `window.JUSTICE_COMPASS_API` at *your* Worker URL from Step 2, commit, and redeploy.
 
 ### Step 4 — Databricks Free Edition (Medallion pipeline + RAG)
+
+**Purpose**: run the demo corpus through the Medallion pipeline (Bronze→Silver→Gold) and stand up a queryable RAG serving endpoint.
 
 1. Sign up → **Repos / Git folders** → clone your fork into the workspace.
 2. Create a **secret scope** named exactly `justice-compass` (Databricks CLI: `databricks secrets create-scope justice-compass`).
@@ -130,14 +138,18 @@ Full step-by-step + troubleshooting table: [`docs/DEPLOY_PHASE2.md`](docs/DEPLOY
 
 ### Step 5 — Lakebase (recommended, not strictly required)
 
-Lakebase powers query audit logging and the homepage "last updated" freshness indicators.
+**Purpose**: Lakebase powers query audit logging and the homepage "last updated" freshness indicators.
 
 1. Databricks → **Lakebase** → create a project (Free Edition: 1 project/account) → run [`databricks/sql/lakebase_schema.sql`](databricks/sql/lakebase_schema.sql) in its SQL editor.
 2. Create a **custom Postgres role + native password** (not OAuth — see [`docs/LAKEBASE.md`](docs/LAKEBASE.md) for why).
 3. Store `lakebase_host` / `lakebase_db` / `lakebase_user` / `lakebase_password` in the `justice-compass` secret scope.
 4. Run `07_lakebase_setup` to sanity-check the connection, then `09_synced_tables_setup` to set up the corpus Synced Table (see [`databricks/prod_notebooks_job/SETUP.md`](databricks/prod_notebooks_job/SETUP.md)).
 
+> **Free Edition only supports one direction**: this project uses **Lake → Base** (Synced Tables, `09`) to replicate `cases_metadata` into Lakebase. It deliberately does **not** rely on **Base → Lake** (Lakebase Change Data Feed) — on Free Edition, CDF's destination must be a Unity Catalog catalog backed by your own cloud storage, but Free Edition workspaces only have *default* storage, so the destination Delta table can never be created ([confirmed on the Databricks Community](https://community.databricks.com/t5/data-engineering/lakebase-cdf-destination-delta-table-not-created-after/m-p/162161#M55045)). This isn't a bug — it only works on a paid workspace with an external-location-backed catalog.
+
 ### Step 6 — Wire the Worker to Databricks + Lakebase
+
+**Purpose**: connect the Worker from Step 2 to the Databricks + Lakebase you just stood up, so `/query` stops returning mock answers.
 
 ```bash
 cd cloudflare/worker
@@ -154,6 +166,8 @@ Full secrets reference: [`.env.example`](.env.example) · [`docs/secrets_map.md`
 
 ### Step 7 — GitHub Actions: CI + auto-deploy (optional)
 
+**Purpose**: automate CI checks, Worker/Pages deploys, and AI PR review on push/PR — all optional, nothing here is required for the app itself to work.
+
 `ci.yml` (lint + unit tests + sample-data smoke test) runs with no secrets needed — it's the only workflow enabled by default in this template, so your Actions tab should stay green out of the box.
 
 `deploy-cloudflare.yml` and `deploy-pages.yml` are present but their `push` trigger is **commented out by default** (they'd otherwise fire the moment you edit those files, before you have a Cloudflare token). To enable auto-deploy on every push to `main`:
@@ -166,9 +180,9 @@ Add `GEMINI_API_KEY` under the same Secrets page to enable `ai-pr-review.yml` �
 
 ### Step 8 — Full automation: scheduled prod pipeline (optional, advanced)
 
-This is the **same automation the author runs**: every 2 hours, a GitHub Action seeds a new synthetic test case, pushes it, tells Databricks to pull the latest Git folder, and triggers a Databricks Job that runs the whole pipeline (`01→02→03→05→09`) end to end — with no human involved.
+**Purpose**: reach full parity with the author's own setup — this is the **same automation the author runs**: every 2 hours, a GitHub Action seeds a new synthetic test case, pushes it, tells Databricks to pull the latest Git folder, and triggers a Databricks Job that runs the whole pipeline (`01→02→03→05→09`) end to end — with no human involved.
 
-**It's disabled by default** in this template (the schedule trigger is commented out in [`.github/workflows/prod-seed-and-pipeline.yml`](.github/workflows/prod-seed-and-pipeline.yml)), because it needs 4 more secrets that only make sense *after* you've completed Steps 4–6. Once you're ready to reach full parity with the author's setup:
+**It's disabled by default** in this template (the schedule trigger is commented out in [`.github/workflows/prod-seed-and-pipeline.yml`](.github/workflows/prod-seed-and-pipeline.yml)), because it needs 4 more secrets that only make sense *after* you've completed Steps 4–6. Once you're ready:
 
 1. **Get a Databricks PAT + host** (if you don't already have one from Step 6):
    - Databricks → your username (top right) → **Settings** → **Developer** → **Access tokens** → **Generate new token**.
@@ -213,6 +227,8 @@ This is the **same automation the author runs**: every 2 hours, a GitHub Action 
 More detail: [`docs/JOBS.md`](docs/JOBS.md) · [`databricks/prod_notebooks_job/README.md`](databricks/prod_notebooks_job/README.md)
 
 ### Step 9 — Verify
+
+**Purpose**: confirm the whole chain is really wired together end to end, instead of still running in mock mode.
 
 ```bash
 curl https://<your-worker>.workers.dev/health
