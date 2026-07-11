@@ -1,0 +1,170 @@
+name: Prod seed and pipeline
+
+on:
+  schedule:
+    # Every 2 hours (UTC)
+    - cron: "0 */2 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: prod-pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  seed-pull-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Databricks secrets
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          DATABRICKS_REPO_ID: ${{ secrets.DATABRICKS_REPO_ID }}
+          DATABRICKS_PROD_JOB_ID: ${{ secrets.DATABRICKS_PROD_JOB_ID }}
+        run: |
+          set -euo pipefail
+          missing=()
+          for key in DATABRICKS_HOST DATABRICKS_TOKEN DATABRICKS_REPO_ID DATABRICKS_PROD_JOB_ID; do
+            if [ -z "${!key:-}" ]; then
+              missing+=("$key")
+            fi
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "Missing GitHub secrets: ${missing[*]}"
+            echo "Add them under Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          echo "All required Databricks secrets are set."
+
+      - name: Checkout dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Seed testcase JSON
+        id: seed
+        run: |
+          case_id=$(python3 scripts/seed_test_case.py)
+          echo "case_id=$case_id" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/sample/testcase*.json
+          if git diff --staged --quiet; then
+            echo "No new testcase file to commit"
+            exit 1
+          fi
+          git commit -m "chore(prod): seed ${{ steps.seed.outputs.case_id }}"
+          git push origin dev
+
+      - name: Databricks Git folder pull
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          DATABRICKS_REPO_ID: ${{ secrets.DATABRICKS_REPO_ID }}
+        run: |
+          set -euo pipefail
+          host="${DATABRICKS_HOST%/}"
+          res=$(curl -sS -w "\n%{http_code}" -X PATCH \
+            "${host}/api/2.0/repos/${DATABRICKS_REPO_ID}" \
+            -H "Authorization: Bearer ${DATABRICKS_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"branch":"dev"}')
+          body="${res%$'\n'*}"
+          code="${res##*$'\n'}"
+          echo "Repos update HTTP ${code}"
+          echo "$body"
+          if [ "$code" -lt 200 ] || [ "$code" -ge 300 ]; then
+            echo "Databricks repos pull failed"
+            exit 1
+          fi
+
+      - name: Run prod pipeline job
+        id: run_job
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          DATABRICKS_PROD_JOB_ID: ${{ secrets.DATABRICKS_PROD_JOB_ID }}
+        run: |
+          set -euo pipefail
+          host="${DATABRICKS_HOST%/}"
+          res=$(curl -sS -w "\n%{http_code}" -X POST \
+            "${host}/api/2.1/jobs/run-now" \
+            -H "Authorization: Bearer ${DATABRICKS_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{\"job_id\":${DATABRICKS_PROD_JOB_ID}}")
+          body="${res%$'\n'*}"
+          code="${res##*$'\n'}"
+          echo "run-now HTTP ${code}"
+          echo "$body"
+          if [ "$code" -lt 200 ] || [ "$code" -ge 300 ]; then
+            echo "Databricks job run-now failed"
+            exit 1
+          fi
+          run_id=$(echo "$body" | python3 -c "import json,sys; print(json.load(sys.stdin).get('run_id',''))")
+          if [ -z "$run_id" ]; then
+            echo "run-now response missing run_id"
+            exit 1
+          fi
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for Databricks job
+        id: wait_job
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          set -euo pipefail
+          host="${DATABRICKS_HOST%/}"
+          run_id="${{ steps.run_job.outputs.run_id }}"
+          max_attempts=90
+          sleep_secs=30
+          final_state=""
+          for attempt in $(seq 1 "$max_attempts"); do
+            res=$(curl -sS -w "\n%{http_code}" \
+              "${host}/api/2.1/jobs/runs/get?run_id=${run_id}" \
+              -H "Authorization: Bearer ${DATABRICKS_TOKEN}")
+            body="${res%$'\n'*}"
+            code="${res##*$'\n'}"
+            if [ "$code" -lt 200 ] || [ "$code" -ge 300 ]; then
+              echo "runs/get HTTP ${code}"
+              echo "$body"
+              exit 1
+            fi
+            state=$(echo "$body" | python3 -c "import json,sys; print(json.load(sys.stdin).get('state',{}).get('life_cycle_state',''))")
+            result_state=$(echo "$body" | python3 -c "import json,sys; print(json.load(sys.stdin).get('state',{}).get('result_state',''))")
+            echo "attempt ${attempt}/${max_attempts}: life_cycle_state=${state} result_state=${result_state}"
+            if [ "$state" = "TERMINATED" ]; then
+              final_state="$result_state"
+              break
+            fi
+            if [ "$state" = "INTERNAL_ERROR" ] || [ "$state" = "SKIPPED" ]; then
+              final_state="$result_state"
+              break
+            fi
+            sleep "$sleep_secs"
+          done
+          if [ -z "$final_state" ]; then
+            echo "Timed out waiting for Databricks job run_id=${run_id}"
+            exit 1
+          fi
+          echo "final_state=$final_state" >> "$GITHUB_OUTPUT"
+          if [ "$final_state" != "SUCCESS" ]; then
+            echo "Databricks job finished with result_state=${final_state}"
+            exit 1
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Prod seed and pipeline"
+            echo "- case_id: ${{ steps.seed.outputs.case_id }}"
+            echo "- databricks_run_id: ${{ steps.run_job.outputs.run_id }}"
+            echo "- databricks_result: ${{ steps.wait_job.outputs.final_state }}"
+          } >> "$GITHUB_STEP_SUMMARY"

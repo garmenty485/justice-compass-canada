@@ -1,0 +1,28 @@
+{
+  "caseId": {
+    "databaseId": "bcsc",
+    "caseId": "2021bcsc789"
+  },
+  "title": "Main Street Taps Ltd. v. Liquor Control and Licensing Branch",
+  "citation": "2021 BCSC 789",
+  "decisionDate": "2021-06-20",
+  "url": "https://justice-compass.demo/cases/2021bcsc789",
+  "keywords": [
+    "liquor licence",
+    "suspension",
+    "public safety",
+    "LCLB",
+    "overcrowding",
+    "identification checks"
+  ],
+  "fullText": "Main Street Taps Ltd. operated a neighbourhood pub under a liquor primary licence. After a series of weekend inspections, the Liquor Control and Licensing Branch (LCLB) imposed a thirty-day suspension, citing overcrowding beyond licensed capacity, failure to check identification at the door, and insufficient trained staff on duty during peak hours. The licensee sought judicial review, arguing the suspension was punitive and unsupported by clear evidence. The Branch maintained that interim suspensions are authorized where public safety is at immediate risk and that inspectors observed patrons who appeared under nineteen being served in a crowded environment. The Court reviewed the decision on the standard of reasonableness. It held that the Branch acted within its authority under the Liquor Control and Licensing Act to impose suspensions where liquor service conditions pose a risk to public safety, particularly when overcrowding impairs the ability of staff to monitor service. However, procedural fairness requires disclosure of inspection reports and photographs relied upon before a suspension takes effect, so the licensee can meaningfully respond. In this case the Branch provided timely notice of the primary inspection findings but delayed production of supplementary crowd-count notes until after the suspension began. The suspension was upheld in substance but the Branch was directed to complete the formal penalty process within sixty days, with written reasons addressing why a thirty-day term was proportionate. The decision illustrates that BC courts defer to LCLB safety judgments while insisting on transparent process and timely completion of regulatory proceedings.",
+  "jurisdiction": "British Columbia",
+  "court": "BC Supreme Court",
+  "topics": [
+    "BC Liquor Control and Licensing Act",
+    "licence suspension",
+    "public safety",
+    "procedural fairness"
+  ],
+  "_note": "Synthetic demo case — not a real CanLII decision."
+}

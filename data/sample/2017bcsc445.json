@@ -1,0 +1,28 @@
+{
+  "caseId": {
+    "databaseId": "bcsc",
+    "caseId": "2017bcsc445"
+  },
+  "title": "Harbour City Retail Spirits Ltd. v. Liquor Control and Licensing Branch",
+  "citation": "2017 BCSC 445",
+  "decisionDate": "2017-05-12",
+  "url": "https://justice-compass.demo/cases/2017bcsc445",
+  "keywords": [
+    "licensee retail store",
+    "new licence application",
+    "public interest",
+    "store density",
+    "LCLB",
+    "refusal"
+  ],
+  "fullText": "Harbour City Retail Spirits Ltd. applied for a licensee retail store licence to open a private liquor store near downtown Nanaimo. The Liquor Control and Licensing Branch (LCLB) refused the application, citing an existing concentration of retail liquor outlets within a short radius, concerns raised by a nearby school about youth exposure, and the applicant's incomplete community consultation summary. Harbour City petitioned for judicial review, arguing that the Branch applied an unpublished density policy, ignored market demand evidence, and treated school proximity as an absolute bar. The Branch submitted that new retail licences engage the public interest, including community impact and the responsible distribution of liquor retail outlets under the Liquor Control and Licensing Act. The Court applied reasonableness review. It confirmed that the Branch may refuse a new licensee retail store where the record supports adverse community impact or excessive local concentration, and that proximity to schools is a relevant consideration. The Court rejected the argument that market demand alone compels approval. However, it found the decision unreasonable because the Branch relied on an internal density guideline that had not been disclosed to the applicant and did not explain how the guideline interacted with the statutory public-interest criteria. The refusal was quashed and remitted for a fresh decision on a disclosed policy basis, with an opportunity for the applicant to respond to density and school-proximity concerns. The case shows that BC retail liquor licence applications can be refused on public-interest grounds, but applicants are entitled to know the criteria actually applied.",
+  "jurisdiction": "British Columbia",
+  "court": "BC Supreme Court",
+  "topics": [
+    "BC Liquor Control and Licensing Act",
+    "licensee retail store",
+    "new licence application",
+    "public interest"
+  ],
+  "_note": "Synthetic demo case — not a real CanLII decision."
+}

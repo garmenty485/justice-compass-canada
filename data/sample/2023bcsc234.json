@@ -1,0 +1,28 @@
+{
+  "caseId": {
+    "databaseId": "bcsc",
+    "caseId": "2023bcsc234"
+  },
+  "title": "Cedar Ridge Bistro Ltd. v. Liquor Control and Licensing Branch",
+  "citation": "2023 BCSC 234",
+  "decisionDate": "2023-02-28",
+  "url": "https://justice-compass.demo/cases/2023bcsc234",
+  "keywords": [
+    "food-primary licence",
+    "patio extension",
+    "hours of service",
+    "LCLB",
+    "neighbourhood impact",
+    "judicial review"
+  ],
+  "fullText": "Cedar Ridge Bistro Ltd. held a food-primary liquor licence for a restaurant in Kelowna and applied to the Liquor Control and Licensing Branch (LCLB) to extend patio service hours until 1:00 a.m. and to enlarge the licensed patio footprint. The Branch refused the application after receiving objections from nearby residents concerning late-night noise and after an inspector concluded that the proposed hours were inconsistent with the primarily food-service character of the licence. Cedar Ridge sought judicial review, arguing the Branch fettered its discretion by treating resident objections as determinative and failed to weigh the restaurant's noise-mitigation plan. The Branch submitted that food-primary licences are intended to support meal service rather than late-night drinking venues, and that neighbourhood impact is a relevant public-interest factor under the Liquor Control and Licensing Act. The Court applied the reasonableness standard. It held that the Branch may refuse patio and hours amendments where the evidence shows a material risk of neighbourhood disturbance and where extended hours would effectively convert a food-primary establishment into a late-night liquor venue. However, the Court found the Branch's reasons inadequate because they did not address the licensee's proposed acoustic barriers, earlier last-call policy, or the absence of prior noise complaints against the existing patio. The refusal was set aside and remitted for reconsideration with directions to weigh mitigation measures expressly and to explain how the statutory food-primary purpose applies to the specific proposal. The decision confirms that BC food-primary licensees may seek patio and hours changes, but LCLB decisions must engage with the evidence and not rely on generic neighbourhood concerns alone.",
+  "jurisdiction": "British Columbia",
+  "court": "BC Supreme Court",
+  "topics": [
+    "BC Liquor Control and Licensing Act",
+    "food-primary licence",
+    "patio hours",
+    "judicial review"
+  ],
+  "_note": "Synthetic demo case — not a real CanLII decision."
+}

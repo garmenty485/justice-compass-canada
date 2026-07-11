@@ -1,0 +1,17 @@
+{
+  "name": "justice-compass",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Canadian legal case RAG assistant — BC liquor licensing focus",
+  "scripts": {
+    "test": "npm run test:worker",
+    "test:worker": "node --test tests/worker.test.js",
+    "lint:worker": "node --check cloudflare/worker/src/index.js && node --check cloudflare/worker/src/meta.js && node --check cloudflare/worker/src/query_log.js && node --check cloudflare/pages/js/app.js",
+    "dev:worker": "npm run dev --prefix cloudflare/worker",
+    "deploy:worker": "npm run deploy --prefix cloudflare/worker"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

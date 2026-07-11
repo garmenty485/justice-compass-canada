@@ -1,0 +1,28 @@
+name = "justice-compass-api"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Deployed: https://justice-compass-api.justicebrobro.workers.dev
+# CI: deploy-cloudflare.yml runs wrangler deploy on push to dev (cloudflare/worker/**).
+
+[vars]
+ENVIRONMENT = "production"
+
+# Uncomment after Cloudflare account setup:
+# routes = [{ pattern = "api.justice-compass.example.com/*", zone_name = "example.com" }]
+
+# Secrets (set via `wrangler secret put`):
+# DATABRICKS_SERVING_URL
+# DATABRICKS_TOKEN
+# DATABRICKS_WAREHOUSE_ID          # optional: /meta Docs via SQL warehouse + UC
+# LAKEBASE_PIPELINE_RUNS_TABLE     # optional: UC table e.g. catalog.schema.pipeline_runs
+# LAKEBASE_HOST                    # Lakebase direct Postgres (custom role + password)
+# LAKEBASE_DB
+# LAKEBASE_USER
+# LAKEBASE_PASSWORD                # native password — Hyperdrive-compatible; see docs/LAKEBASE.md
+# LAKEBASE_CASES_TABLE             # optional: Synced Table for /meta corpus (default: "default".cases_meta_synced)
+# API_KEY
+
+[dev]
+port = 8787

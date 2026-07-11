@@ -1,0 +1,28 @@
+{
+  "caseId": {
+    "databaseId": "bcsc",
+    "caseId": "2018bcsc890"
+  },
+  "title": "North Shore Lounge Inc. v. Liquor Control and Licensing Branch",
+  "citation": "2018 BCSC 890",
+  "decisionDate": "2018-08-09",
+  "url": "https://justice-compass.demo/cases/2018bcsc890",
+  "keywords": [
+    "liquor primary",
+    "monetary penalty",
+    "over-service",
+    "intoxication",
+    "LCLB",
+    "administrative penalty"
+  ],
+  "fullText": "North Shore Lounge Inc. operated a liquor-primary lounge in North Vancouver. Following a covert inspection, the Liquor Control and Licensing Branch (LCLB) imposed an administrative monetary penalty after finding that staff continued to serve liquor to a patron who displayed clear signs of intoxication, contrary to the Liquor Control and Licensing Act and the licence terms and conditions. The licensee challenged the penalty on judicial review, contending that the inspector's observations were subjective, that the Branch failed to consider staff training records, and that the quantum of the penalty was disproportionate for a first offence. The Branch argued that preventing over-service is a core public-safety obligation and that monetary penalties are an available enforcement tool short of suspension or revocation. The Court reviewed the decision for reasonableness. It accepted that serving an intoxicated person is a serious contravention and that the Branch is entitled to rely on trained inspectors' contemporaneous notes. The Court also held that a monetary penalty may be upheld even for a first offence where the risk to public safety is clear. Nevertheless, the Court found a reviewable error in the Branch's failure to consider the licensee's documented Serving It Right refresher training and its incident-response policy when assessing penalty quantum. The monetary penalty was remitted solely for reconsideration of amount, while the finding of contravention was left intact. The case illustrates that BC licensees remain liable for over-service, but penalty assessments must engage with mitigating compliance efforts on the record.",
+  "jurisdiction": "British Columbia",
+  "court": "BC Supreme Court",
+  "topics": [
+    "BC Liquor Control and Licensing Act",
+    "administrative monetary penalty",
+    "over-service",
+    "public safety"
+  ],
+  "_note": "Synthetic demo case — not a real CanLII decision."
+}

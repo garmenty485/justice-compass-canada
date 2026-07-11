@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Lint Worker and Pages JS
+        run: npm run lint:worker
+
+      - name: Run Worker unit tests
+        run: npm test
+
+      - name: Wrangler dry-run syntax check
+        working-directory: cloudflare/worker
+        run: |
+          npm install
+          npx wrangler deploy --dry-run --outdir /tmp/wrangler-out
+
+  python-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate sample data JSON
+        run: python tests/pipeline_smoke_test.py

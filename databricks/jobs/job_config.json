@@ -1,0 +1,31 @@
+{
+  "name": "justice-compass-medallion",
+  "description": "Bronze → Silver → Gold pipeline for BC liquor licensing cases",
+  "note": "Static reference only. Prefer notebook 08_create_medallion_job.py — it resolves Git folder paths at runtime. Notebook paths must be .../databricks/notebooks/01_bronze_ingest (not repo root).",
+  "tasks": [
+    {
+      "task_key": "bronze_ingest",
+      "notebook_task": {
+        "notebook_path": "<GIT_FOLDER>/databricks/notebooks/01_bronze_ingest",
+        "source": "WORKSPACE"
+      }
+    },
+    {
+      "task_key": "silver_transform",
+      "depends_on": [{ "task_key": "bronze_ingest" }],
+      "notebook_task": {
+        "notebook_path": "<GIT_FOLDER>/databricks/notebooks/02_silver_transform",
+        "source": "WORKSPACE"
+      }
+    },
+    {
+      "task_key": "gold_embed",
+      "depends_on": [{ "task_key": "silver_transform" }],
+      "notebook_task": {
+        "notebook_path": "<GIT_FOLDER>/databricks/notebooks/03_gold_embed",
+        "source": "WORKSPACE"
+      }
+    }
+  ],
+  "future": "After 03: append 05/06 with zero-downtime Serving update — see docs/JOBS.md"
+}

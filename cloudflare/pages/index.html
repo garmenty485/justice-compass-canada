@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Justice Compass — BC Liquor Licensing Cases</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <h1>Justice Compass</h1>
+      <p class="tagline">BC liquor licensing case research assistant</p>
+      <p id="freshness" class="freshness" aria-live="polite"></p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="disclaimer" role="note">
+      <strong>Not legal advice.</strong> Informational summaries of public court decisions only. Consult a lawyer for legal matters.
+    </section>
+
+    <section class="search-section">
+      <form id="search-form" class="search-form">
+        <label for="query-input" class="visually-hidden">Your question</label>
+        <input
+          id="query-input"
+          type="text"
+          name="q"
+          placeholder="e.g. When can BC revoke a liquor licence?"
+          autocomplete="off"
+          required
+        />
+        <button type="submit" id="search-btn">Search</button>
+      </form>
+      <p class="hint">Try: licence revocation · procedural fairness · LCLB decisions</p>
+    </section>
+
+    <section id="status" class="status hidden" aria-live="polite"></section>
+    <section id="results" class="results hidden">
+      <article id="answer-card" class="card">
+        <h2>Answer</h2>
+        <p id="answer-text"></p>
+        <p id="mock-badge" class="mock-badge hidden">Demo mode — Databricks not connected</p>
+      </article>
+      <section id="citations-section" class="citations hidden">
+        <h2>Citations</h2>
+        <ul id="citations-list"></ul>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>Demo corpus: synthetic BC liquor licensing cases (portfolio MVP)</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

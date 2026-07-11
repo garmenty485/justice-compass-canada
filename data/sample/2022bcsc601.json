@@ -1,0 +1,30 @@
+{
+  "caseId": {
+    "databaseId": "bcsc",
+    "caseId": "2022bcsc601"
+  },
+  "title": "Harbourview Craft Distillery Ltd. v. Liquor Control and Licensing Branch",
+  "citation": "2022 BCSC 601",
+  "decisionDate": "2022-09-14",
+  "url": "https://justice-compass.demo/cases/2022bcsc601",
+  "keywords": [
+    "liquor licence",
+    "manufacturer licence",
+    "conditions",
+    "public safety",
+    "judicial review",
+    "LCLB",
+    "inspection"
+  ],
+  "fullText": "Harbourview Craft Distillery Ltd. held a manufacturer licence under the Liquor Control and Licensing Act, operating a small-batch distillery with an on-site tasting room. Following compliance inspections, the Liquor Control and Licensing Branch (LCLB) imposed additional conditions on the licence rather than suspending or revoking it outright. The Branch alleged failures to maintain production and excise-style records, unauthorized third-party bottling on premises, and tasting room staff without valid Serving It Right certifications. The new conditions included continuous video monitoring across all production areas, weekly third-party audit reports, and restricted hours for public tastings. Harbourview applied for judicial review, arguing the Branch exceeded its authority by imposing disproportionate conditions and denied procedural fairness when responding to new evidence. The Branch contended the conditions protected public safety and fell within its regulatory discretion under the Act. The Court applied the reasonableness standard, acknowledging the Branch's specialized expertise in licensing. The Court found insufficient reasons linking the most severe conditions to specific findings. Continuous video monitoring of entire production areas was not adequately justified on the record, particularly where core record-keeping violations could have been addressed with narrower corrective terms. The Branch also breached procedural fairness by relying on a supplemental inspector's report disclosed only after the decision issued, depriving the licensee of a meaningful chance to respond. The Court did not set aside core findings regarding record-keeping deficiencies but quashed the excessive conditions and remitted the matter for reconsideration. The licensee may challenge LCLB inspection outcomes in court through judicial review when conditions are disproportionate or imposed without fair process. Partial indemnity costs were awarded to the petitioner.",
+  "jurisdiction": "British Columbia",
+  "court": "BC Supreme Court",
+  "topics": [
+    "BC Liquor Control and Licensing Act",
+    "manufacturer licence",
+    "licence conditions",
+    "judicial review",
+    "procedural fairness"
+  ],
+  "_note": "Synthetic demo case — not a real CanLII decision."
+}

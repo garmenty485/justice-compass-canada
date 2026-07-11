@@ -1,0 +1,28 @@
+{
+  "caseId": {
+    "databaseId": "bcca",
+    "caseId": "2019bcca456"
+  },
+  "title": "Okanagan Estates Inc. v. British Columbia (Liquor Control and Licensing Branch)",
+  "citation": "2019 BCCA 456",
+  "decisionDate": "2019-11-02",
+  "url": "https://justice-compass.demo/cases/2019bcca456",
+  "keywords": [
+    "liquor licence",
+    "transfer",
+    "fit and proper person",
+    "LCLB",
+    "criminal record",
+    "judicial review"
+  ],
+  "fullText": "This appeal concerned the Branch's refusal to approve a transfer of a liquor primary licence from Okanagan Estates Inc. to a proposed new licensee. The Liquor Control and Licensing Branch (LCLB) concluded that the proposed licensee was not a fit and proper person under the Liquor Control and Licensing Act based on prior criminal convictions related to impaired driving and an administrative penalty for operating an unlicensed catering bar at a private event. Okanagan Estates argued the Branch failed to weigh rehabilitation efforts and community references, and that the refusal was disproportionate to the risk posed. The Branch submitted that fit-and-proper assessments require broad discretion to protect public interest in responsible liquor service. The Court of Appeal affirmed that the fit-and-proper-person test is within the Branch's expertise and entitled to deference on reasonableness review. The Branch must still provide clear, intelligible reasons linking specific findings to the statutory criteria, including how past conduct relates to the ability to operate a licensed establishment safely. The Court found the Branch adequately explained why impaired-driving history and prior unlicensed service raised ongoing concerns, but remitted minor aspects of the decision where reasons did not address submitted rehabilitation evidence. Licence transfers in BC therefore turn on character and compliance history, not only on the financial capacity of the applicant. Parties dissatisfied with transfer refusals may seek judicial review in the Supreme Court and, on questions of legal principle, appeal to the Court of Appeal.",
+  "jurisdiction": "British Columbia",
+  "court": "BC Court of Appeal",
+  "topics": [
+    "BC Liquor Control and Licensing Act",
+    "licence transfer",
+    "fit and proper person",
+    "administrative law"
+  ],
+  "_note": "Synthetic demo case — not a real CanLII decision."
+}

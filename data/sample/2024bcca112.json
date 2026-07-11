@@ -1,0 +1,28 @@
+{
+  "caseId": {
+    "databaseId": "bcca",
+    "caseId": "2024bcca112"
+  },
+  "title": "Pacific Rim Catering Co. v. British Columbia (Liquor Control and Licensing Branch)",
+  "citation": "2024 BCCA 112",
+  "decisionDate": "2024-04-18",
+  "url": "https://justice-compass.demo/cases/2024bcca112",
+  "keywords": [
+    "catering licence",
+    "special event",
+    "off-site service",
+    "LCLB",
+    "licence terms",
+    "appeal"
+  ],
+  "fullText": "Pacific Rim Catering Co. held a catering endorsement authorizing liquor service at approved off-site events. The Liquor Control and Licensing Branch (LCLB) found that the caterer served liquor at a private wedding beyond the guest capacity stated in the event authorization and outside the approved service area, then imposed a seven-day suspension of the catering endorsement. The Supreme Court dismissed the petition for judicial review. On appeal, Pacific Rim argued that the Branch misinterpreted the catering authorization as a hard capacity limit and that minor overflow should attract a warning rather than suspension. The Branch maintained that catering authorizations are event-specific controls essential to public safety and that exceeding approved capacity and service boundaries is a material breach. The Court of Appeal held that catering licence terms and event authorizations form part of the enforceable regulatory framework under the Liquor Control and Licensing Act, and that the Branch's interpretation of capacity and service-area limits was reasonable. The Court further held that a short suspension of a catering endorsement, as opposed to revocation of the underlying licence, was within the range of acceptable outcomes for a deliberate or careless overrun at a large event. The appeal was dismissed. The decision clarifies that BC catering licensees must treat event authorizations as binding operational limits, and that temporary suspension of catering privileges is a proportionate tool when off-site service exceeds approved parameters.",
+  "jurisdiction": "British Columbia",
+  "court": "BC Court of Appeal",
+  "topics": [
+    "BC Liquor Control and Licensing Act",
+    "catering licence",
+    "special event authorization",
+    "licence suspension"
+  ],
+  "_note": "Synthetic demo case — not a real CanLII decision."
+}

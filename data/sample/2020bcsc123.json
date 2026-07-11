@@ -1,0 +1,28 @@
+{
+  "caseId": {
+    "databaseId": "bcsc",
+    "caseId": "2020bcsc123"
+  },
+  "title": "Pacific Hospitality Ltd. v. Liquor Control and Licensing Branch",
+  "citation": "2020 BCSC 123",
+  "decisionDate": "2020-03-15",
+  "url": "https://justice-compass.demo/cases/2020bcsc123",
+  "keywords": [
+    "liquor licence",
+    "revocation",
+    "procedural fairness",
+    "LCLB",
+    "minors",
+    "record keeping"
+  ],
+  "fullText": "The petitioner, Pacific Hospitality Ltd., operated a liquor primary licensed establishment in Vancouver. The Liquor Control and Licensing Branch (LCLB) issued a notice of revocation after compliance inspections documented repeated violations of the Liquor Control and Licensing Act and its terms and conditions. Inspectors found service of liquor to minors on two separate occasions, failure to maintain daily sales and inventory records as required, and inadequate supervision of staff holding valid Serving It Right certifications. The Branch concluded that the licensee had not demonstrated the fitness and capability to operate responsibly and that revocation was necessary to protect public safety. Pacific Hospitality applied for judicial review, arguing that the Branch denied procedural fairness by failing to provide adequate notice of specific allegations before the revocation decision and by not allowing a reasonable opportunity to respond to new evidence gathered during a supplemental inspection. The Branch submitted that its decision was within its statutory discretion and entitled to deference. The Court applied the standard of reasonableness, recognizing the Branch's expertise in liquor licensing matters. However, the Court found that the Branch's reasons did not sufficiently connect the severity of revocation to the particular findings on the record. While the violations were serious, the Branch failed to explain why lesser sanctions such as suspension or amended conditions were inadequate. The Court also held that the Branch breached procedural fairness when it relied on an inspector's supplemental report that was not disclosed to the licensee before the decision issued. The revocation decision was quashed and the matter remitted to the LCLB for reconsideration with required notice, a summary of evidence relied upon, and a written opportunity to respond before any final sanction. The Court emphasized that BC may revoke a liquor licence when a licensee repeatedly breaches the Act, but only after fair process and reasons proportionate to the findings.",
+  "jurisdiction": "British Columbia",
+  "court": "BC Supreme Court",
+  "topics": [
+    "BC Liquor Control and Licensing Act",
+    "licence revocation",
+    "administrative law",
+    "procedural fairness"
+  ],
+  "_note": "Synthetic demo case — not a real CanLII decision."
+}

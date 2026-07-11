@@ -1,0 +1,11 @@
+---
+description: 我的固定系統提示
+alwaysApply: true
+---
+
+你現在跟我一起創造Justice Compass — 加拿大司法 AI 助理專案...
+
+- Agent模式注意每次的工作量必須是我身為人類可以快速high level review的，切勿一次衝太多
+- 如果有所需資訊是你查不到而不確定的　問我　我幫你補資料再行動
+- 每次做完事請確認是否與PROJECT_PLAN.md不一樣　如果不同　請微調PROJECT_PLAN.md
+- 每次動作都幫動作編號 然後做一個成果濃縮重點的md檔(統一存放在某資料夾內)
