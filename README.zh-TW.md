@@ -36,13 +36,36 @@ flowchart LR
 
 ## ⚠️ 必改清單
 
-| # | 檔案 | 內容 | 改成 |
-|---|------|------|------|
-| 1 | `cloudflare/pages/js/config.js` | 作者本人的 Worker URL | 你自己部署的 Worker URL（步驟 2） |
-| 2 | `.github/workflows/deploy-pages.yml` 的 `--project-name=justice-compass` | Cloudflare Pages 專案名 | 對齊你在步驟 3 建立的專案名，或直接沿用 `justice-compass` |
-| 3 | Databricks secret scope 名稱 `justice-compass` | 所有 notebook 都寫死這個名字 | 在你自己的 workspace 建同名 scope（步驟 4） |
-| 4 | GitHub Secrets | 從未進 repo | 自行在 **Settings → Secrets and variables → Actions** 新增（步驟 7–8） |
-| 5 | `docs/*.md` 裡殘留的 `garmenty485/justice-compass` 引用 | 作者原本私有 repo 的路徑 | 純裝飾性文字，可忽略，或換成你自己 fork 的路徑 |
+這個 repo 預設接的是**作者自己的** demo 部署。開始前先看這段，很短。
+
+### 🔴 唯一一項不改就會壞掉的
+
+| 檔案 | 寫死的內容 | 不改會怎樣 |
+|---|---|---|
+| [`cloudflare/pages/js/config.js`](cloudflare/pages/js/config.js) | 作者本人的 Worker URL（`justice-compass-api.justicebrobro.workers.dev`） | 你部署的 Pages UI 會打到**作者的** Worker/API，不是你的。步驟 3 會教你改，只是一行文字。 |
+
+### 🟡 只影響「自動化 CI/CD 能不能動」，不改也不影響 app 本身
+
+| 檔案 | 寫死的內容 | 改成 |
+|---|---|---|
+| `.github/workflows/deploy-pages.yml` 的 `--project-name=justice-compass` | Cloudflare Pages 專案名 | 對齊你在步驟 3 建立的專案名，或直接沿用 `justice-compass` |
+| Databricks secret scope 名稱 `justice-compass` | 所有 notebook 都寫死這個名字 | 在你自己的 workspace 建同名 scope（步驟 4）——最省事，不用改任何程式碼 |
+
+### 🟢 完全沒寫死——本來就是用 secrets / placeholder，這裡沒東西要改
+
+| 項目 | 實際怎麼設定 |
+|---|---|
+| Databricks workspace URL / token | GitHub Secrets `DATABRICKS_HOST` / `DATABRICKS_TOKEN`——從未進 repo（步驟 7–8） |
+| RAG Serving endpoint URL | Worker secret `DATABRICKS_SERVING_URL`（步驟 6） |
+| Lakebase 連線 | Worker secrets `LAKEBASE_*`（步驟 6） |
+| Cloudflare 部署 | GitHub Secret `CLOUDFLARE_API_TOKEN`（步驟 7） |
+| `data/sample/*.json` 與 Worker mock 引用裡的判例 URL | 虛構的 `justice-compass.demo/...` 占位網域，純裝飾，不會真的連到任何地方 |
+
+### ⚪ 純裝飾性，可以無視
+
+`docs/*.md` 跟一個 notebook 裡殘留的 `garmenty485/justice-compass`（作者原本私有 repo 的路徑），或 `wrangler.toml` 註解裡的 `justicebrobro` 子網域——都只是留下的文字，不影響任何執行行為。
+
+> **一句話**：fork 後照著下面步驟 1–9 做，唯一一處真的要動的程式碼是步驟 3 的 `config.js`；其他都是你自己設的 secret，或沒人會看的註解。
 
 ---
 
@@ -89,7 +112,7 @@ curl https://<你的worker>.workers.dev/health
 **目的**：把示範判例跑過完整的 Medallion pipeline（Bronze→Silver→Gold），並部署成一個可查詢的 RAG serving endpoint。
 
 1. 註冊 → **Repos / Git folders** → clone 你的 fork
-2. 建立 secret scope，名稱必須是 `justice-compass`：
+2. 用 [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial)（照這篇裝好 + 登入）建立 secret scope，名稱必須是 `justice-compass`：
    ```bash
    databricks secrets create-scope justice-compass
    ```
@@ -104,10 +127,24 @@ curl https://<你的worker>.workers.dev/health
 
 **目的**：Lakebase 支援查詢稽核紀錄，以及首頁的「最後更新時間」freshness 顯示。
 
-1. Databricks → **Lakebase** → 建立 project → SQL Editor 執行 [`databricks/sql/lakebase_schema.sql`](databricks/sql/lakebase_schema.sql)
-2. 建立**自訂 Postgres role + 固定密碼**（非 OAuth）
-3. 把 `lakebase_host` / `lakebase_db` / `lakebase_user` / `lakebase_password` 存進 `justice-compass` secret scope
-4. 跑 `07_lakebase_setup` 驗證連線，再跑 `09_synced_tables_setup` 設定 Synced Table（詳見 [`databricks/prod_notebooks_job/SETUP.md`](databricks/prod_notebooks_job/SETUP.md)）
+1. Databricks → **Lakebase** → 建立 project → 打開 **SQL Editor** 執行 [`databricks/sql/lakebase_schema.sql`](databricks/sql/lakebase_schema.sql)
+2. 在同一個 SQL Editor 裡，建立 Worker/notebook 要用來連線的 role——純 SQL，不是 OAuth（原因見 [`docs/LAKEBASE.md`](docs/LAKEBASE.md)）：
+
+   ```sql
+   CREATE ROLE justice_compass_app WITH LOGIN PASSWORD 'REPLACE_WITH_A_STRONG_PASSWORD';
+   GRANT USAGE ON SCHEMA public TO justice_compass_app;
+   GRANT INSERT ON public.query_logs TO justice_compass_app;
+   GRANT SELECT ON public.cases TO justice_compass_app;
+   ```
+
+   `justice_compass_app` 只是建議名稱——你這裡取的角色名跟密碼，就是下面要存的 `lakebase_user`／`lakebase_password`。
+3. 到專案的 **Connection details** 頁面查 host / database 名稱，把 `lakebase_host` / `lakebase_db` / `lakebase_user` / `lakebase_password` 存進 `justice-compass` secret scope。
+4. 跑 `07_lakebase_setup` 驗證連線，再跑 `09_synced_tables_setup` 建立 Synced Table（詳見 [`databricks/prod_notebooks_job/SETUP.md`](databricks/prod_notebooks_job/SETUP.md)）。這張表建好後，回 SQL Editor 補一條授權：
+
+   ```sql
+   GRANT USAGE ON SCHEMA "default" TO justice_compass_app;
+   GRANT SELECT ON "default".cases_meta_synced TO justice_compass_app;
+   ```
 
 > **Free Edition 只支援單向**：本專案只做 **Lake → Base**（Synced Tables，`09`），把 `cases_metadata` 複製進 Lakebase。刻意沒有依賴 **Base → Lake**（Lakebase Change Data Feed）——在 Free Edition 上，CDF 的目的地必須是「有自己雲端儲存位置」的 Unity Catalog catalog，但 Free Edition workspace 只有預設（default）儲存，目的地 Delta 表永遠建不出來（[已在 Databricks 社群確認](https://community.databricks.com/t5/data-engineering/lakebase-cdf-destination-delta-table-not-created-after/m-p/162161#M55045)）。這不是 bug——只有付費 workspace（catalog 掛自訂雲端儲存位置）才支援雙向。
 

@@ -68,17 +68,38 @@ Local tooling: **Node.js 20+**, **Python 3.10+**, [`wrangler`](https://developer
 
 ---
 
-## ⚠️ Personalization checklist — things you MUST change
+## ⚠️ Personalization checklist
 
-This repo works out of the box against the **author's own** demo Worker/Pages deployment. To run your **own independent instance**, change these:
+This repo ships pointed at the **author's own** demo deployment by default. Read this before you deploy your own copy — it's short.
 
-| # | File | What's hardcoded | Change to |
-|---|------|-------------------|-----------|
-| 1 | `cloudflare/pages/js/config.js` | Author's Worker URL (`justice-compass-api.justicebrobro.workers.dev`) | Your own deployed Worker URL (Step 2 below) — or use `config.local.js` locally (already supported, just add the file) |
-| 2 | `.github/workflows/deploy-pages.yml` (`--project-name=justice-compass`) | Cloudflare Pages project name | Match whatever name you give your Pages project in Step 3, **or** just name your project `justice-compass` |
-| 3 | Databricks secret scope name `justice-compass` | Referenced by every notebook (`databricks/lakebase/secret_utils.py` etc.) | Create a scope with this **exact name** in your own workspace (Step 4) — simplest path, no code change needed |
-| 4 | GitHub Actions secrets (`DATABRICKS_HOST`, `DATABRICKS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `GEMINI_API_KEY`, ...) | N/A — never committed | Add your own in **Settings → Secrets and variables → Actions** (Steps 7–8) |
-| 5 | Any `garmenty485/justice-compass` references in `docs/*.md` comments | Author's original private repo path | Cosmetic only — safe to ignore, or replace with your fork's path |
+### 🔴 The one thing that actually breaks if you skip it
+
+| File | Hardcoded value | What happens if you don't change it |
+|---|---|---|
+| [`cloudflare/pages/js/config.js`](cloudflare/pages/js/config.js) | Author's Worker URL (`justice-compass-api.justicebrobro.workers.dev`) | Your deployed Pages UI will call **the author's** Worker/API instead of yours. Fixed in Step 3 below — it's a one-line edit. |
+
+### 🟡 Things that only matter if you want the automated CI/CD to work
+
+| File | Hardcoded value | Change to |
+|---|---|---|
+| `.github/workflows/deploy-pages.yml` (`--project-name=justice-compass`) | Cloudflare Pages project name | Match whatever name you give your Pages project in Step 3, **or** just name your project `justice-compass` |
+| Databricks secret scope name `justice-compass` | Referenced by every notebook | Create a scope with this **exact name** in your own workspace (Step 4) — simplest path, no code change needed |
+
+### 🟢 Not hardcoded at all — secrets and placeholders by design, nothing to edit here
+
+| Item | How it's actually set |
+|---|---|
+| Databricks workspace URL / token | GitHub Secrets `DATABRICKS_HOST` / `DATABRICKS_TOKEN` — never committed (Steps 7–8) |
+| RAG Serving endpoint URL | Worker secret `DATABRICKS_SERVING_URL` (Step 6) |
+| Lakebase connection | Worker secrets `LAKEBASE_*` (Step 6) |
+| Cloudflare deploy | GitHub Secret `CLOUDFLARE_API_TOKEN` (Step 7) |
+| Demo case URLs in `data/sample/*.json` and the Worker's mock citation | Fictional `justice-compass.demo/...` placeholder domain — decorative only, never resolves to anything real |
+
+### ⚪ Cosmetic only — safe to ignore
+
+Comments mentioning `garmenty485/justice-compass` (the author's original private repo) in `docs/*.md` and one notebook, or the `justicebrobro` subdomain inside a `wrangler.toml` comment — these are just leftover text and don't affect runtime behavior.
+
+> **TL;DR**: fork it, follow Steps 1–9 below, and the only actual code edit you *must* make is `config.js` in Step 3. Everything else is either a secret you set yourself, or a comment nobody reads.
 
 ---
 
@@ -128,7 +149,7 @@ Then edit **`cloudflare/pages/js/config.js`** to point `window.JUSTICE_COMPASS_A
 **Purpose**: run the demo corpus through the Medallion pipeline (Bronze→Silver→Gold) and stand up a queryable RAG serving endpoint.
 
 1. Sign up → **Repos / Git folders** → clone your fork into the workspace.
-2. Create a **secret scope** named exactly `justice-compass` (Databricks CLI: `databricks secrets create-scope justice-compass`).
+2. Create a **secret scope** named exactly `justice-compass` using the [Databricks CLI](https://docs.databricks.com/aws/en/dev-tools/cli/tutorial) (install + authenticate per that guide, then run `databricks secrets create-scope justice-compass`).
 3. Run notebooks in order from `databricks/notebooks/`:
    `01_bronze_ingest` → `02_silver_transform` → `03_gold_embed` → `04_rag_serving` (interactive sanity check) → `05_deploy_serving` (registers the model + creates the **Model Serving** endpoint).
 4. If the endpoint doesn't come up from `05`, run `06_create_serving_endpoint_api` (REST-API fallback for a Free Edition UI quirk).
@@ -140,10 +161,24 @@ Full step-by-step + troubleshooting table: [`docs/DEPLOY_PHASE2.md`](docs/DEPLOY
 
 **Purpose**: Lakebase powers query audit logging and the homepage "last updated" freshness indicators.
 
-1. Databricks → **Lakebase** → create a project (Free Edition: 1 project/account) → run [`databricks/sql/lakebase_schema.sql`](databricks/sql/lakebase_schema.sql) in its SQL editor.
-2. Create a **custom Postgres role + native password** (not OAuth — see [`docs/LAKEBASE.md`](docs/LAKEBASE.md) for why).
-3. Store `lakebase_host` / `lakebase_db` / `lakebase_user` / `lakebase_password` in the `justice-compass` secret scope.
-4. Run `07_lakebase_setup` to sanity-check the connection, then `09_synced_tables_setup` to set up the corpus Synced Table (see [`databricks/prod_notebooks_job/SETUP.md`](databricks/prod_notebooks_job/SETUP.md)).
+1. Databricks → **Lakebase** → create a project (Free Edition: 1 project/account) → open its **SQL Editor** and run [`databricks/sql/lakebase_schema.sql`](databricks/sql/lakebase_schema.sql).
+2. In the same SQL Editor, create the role your Worker/notebooks will connect as — plain SQL, not OAuth (see [`docs/LAKEBASE.md`](docs/LAKEBASE.md) for why):
+
+   ```sql
+   CREATE ROLE justice_compass_app WITH LOGIN PASSWORD 'REPLACE_WITH_A_STRONG_PASSWORD';
+   GRANT USAGE ON SCHEMA public TO justice_compass_app;
+   GRANT INSERT ON public.query_logs TO justice_compass_app;
+   GRANT SELECT ON public.cases TO justice_compass_app;
+   ```
+
+   `justice_compass_app` is just a suggested name — whatever role name and password you pick here become `lakebase_user` and `lakebase_password` below.
+3. Find your project's host and database name on its **Connection details** page, then store `lakebase_host` / `lakebase_db` / `lakebase_user` / `lakebase_password` in the `justice-compass` secret scope.
+4. Run `07_lakebase_setup` to sanity-check the connection, then `09_synced_tables_setup` to create the corpus Synced Table (see [`databricks/prod_notebooks_job/SETUP.md`](databricks/prod_notebooks_job/SETUP.md)). Once that table exists, grant your role read access to it too (back in the Lakebase SQL Editor):
+
+   ```sql
+   GRANT USAGE ON SCHEMA "default" TO justice_compass_app;
+   GRANT SELECT ON "default".cases_meta_synced TO justice_compass_app;
+   ```
 
 > **Free Edition only supports one direction**: this project uses **Lake → Base** (Synced Tables, `09`) to replicate `cases_metadata` into Lakebase. It deliberately does **not** rely on **Base → Lake** (Lakebase Change Data Feed) — on Free Edition, CDF's destination must be a Unity Catalog catalog backed by your own cloud storage, but Free Edition workspaces only have *default* storage, so the destination Delta table can never be created ([confirmed on the Databricks Community](https://community.databricks.com/t5/data-engineering/lakebase-cdf-destination-delta-table-not-created-after/m-p/162161#M55045)). This isn't a bug — it only works on a paid workspace with an external-location-backed catalog.
 

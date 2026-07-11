@@ -56,12 +56,23 @@ Both sides use the **same set** of Lakebase connection parameters (host / db / u
 
 ### Role permissions (recommended)
 
-The custom role needs at least:
+Run this in the Lakebase SQL Editor after `lakebase_schema.sql` (see README Step 5 for the fork-it version of this same snippet):
 
-- `CONNECT` on the database
-- `USAGE` on the schema (the schema that holds the tables)
-- `INSERT` on `query_logs` (Worker audit ✅)
-- `SELECT` on `cases` (Worker `/meta` corpus stats ✅)
+```sql
+CREATE ROLE justice_compass_app WITH LOGIN PASSWORD 'REPLACE_WITH_A_STRONG_PASSWORD';
+GRANT USAGE ON SCHEMA public TO justice_compass_app;
+GRANT INSERT ON public.query_logs TO justice_compass_app;
+GRANT SELECT ON public.cases TO justice_compass_app;
+```
+
+Once the Synced Table exists (after running `09`), also grant read access to it:
+
+```sql
+GRANT USAGE ON SCHEMA "default" TO justice_compass_app;
+GRANT SELECT ON "default".cases_meta_synced TO justice_compass_app;
+```
+
+`CONNECT` on the database is granted to `PUBLIC` by default on a fresh Lakebase project, so it's usually not needed explicitly — check your project's connection settings if the Worker can't connect.
 
 ---
 
