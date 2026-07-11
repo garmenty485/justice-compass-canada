@@ -11,7 +11,8 @@
 # MAGIC
 # MAGIC **Known issue (2026-07-06)**: CDF UI configured + `REPLICA IDENTITY FULL` set, but
 # MAGIC `lb_query_logs_history` Delta table may **not appear** on Free Edition (platform preview bug).
-# MAGIC Audit still works via Lakebase `query_logs` directly. See `docs/LAKEBASE.md` §CDF 驗收狀態.
+# MAGIC Audit still works via Lakebase `query_logs` directly. See `docs/LAKEBASE.md`
+# MAGIC section "CDF verification status".
 # MAGIC
 # MAGIC Docs: https://docs.databricks.com/aws/en/oltp/projects/lakebase-cdf
 

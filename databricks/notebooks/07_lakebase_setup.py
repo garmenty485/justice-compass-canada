@@ -10,7 +10,9 @@
 # MAGIC **Secrets** (secret scope `justice-compass`):
 # MAGIC - `lakebase_host`, `lakebase_db`, `lakebase_user`, `lakebase_password`
 # MAGIC
-# MAGIC **Auth**：自訂 Postgres ROLE + **native PASSWORD**（非 OAuth）。Cloudflare Worker 使用同名參數（`LAKEBASE_*` secrets）。詳見 `docs/LAKEBASE.md` §連線與認證。
+# MAGIC **Auth**: a custom Postgres ROLE with a **native PASSWORD** (not OAuth). The Cloudflare
+# MAGIC Worker uses the same set of parameters (`LAKEBASE_*` secrets). See `docs/LAKEBASE.md`
+# MAGIC section "Connection and authentication".
 # MAGIC
 # MAGIC Notebooks `01`–`03` and `05` call `pipeline_log.log_pipeline_run()` when secrets exist.
 

@@ -27,9 +27,10 @@ def build_document(serial: int) -> dict:
     case_id = f"testcase{serial:04d}"
     today = date.today().isoformat()
     full_text = (
-        f"這是自動排程產生的測試案例 {case_id}（seeded {today}），"
-        "僅用於驗證 prod pipeline（bronze→silver→gold→serving→Lakebase sync）"
-        "端到端是否正常運作，不代表任何真實判決內容，內容可安全忽略。"
+        f"This is an automatically scheduled synthetic test case {case_id} (seeded {today}). "
+        "It exists only to verify that the prod pipeline (bronze -> silver -> gold -> "
+        "serving -> Lakebase sync) runs end to end correctly. It does not represent any "
+        "real court decision and its content can be safely ignored."
     )
     return {
         "caseId": {"databaseId": "demo", "caseId": case_id},

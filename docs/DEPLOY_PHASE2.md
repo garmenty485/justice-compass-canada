@@ -9,7 +9,7 @@ Browser (Pages) → Worker → Model Serving endpoint → justice_compass_rag py
 Notebook `04` = dev/demo inside Databricks.  
 Notebook `05` = register pyfunc + create serving endpoint for Cloudflare.
 
-> **2026-07-05 更新**：Free Edition 上 **`05_deploy_serving` 已成功建立 endpoint**（commit `0a5acab`，Databricks AI 修復）。路徑：driver `/tmp` parquet → MLflow log → UC 或 workspace registry fallback → REST API + `workload_size: Small`。
+> **Update (2026-07-05)**: On Free Edition, **`05_deploy_serving` successfully creates the endpoint** (commit `0a5acab`, fixed with Databricks AI assistance). Path: driver `/tmp` parquet → MLflow log → UC or workspace registry fallback → REST API + `workload_size: Small`.
 
 ---
 
@@ -17,27 +17,27 @@ Notebook `05` = register pyfunc + create serving endpoint for Cloudflare.
 
 1. Pull latest `main` branch
 2. Run pipelines `01`–`03` if tables are stale
-3. Run **`05_deploy_serving`** → **Run all**（順序：Export → MLflow upgrade → Log → Register → Endpoint）
+3. Run **`05_deploy_serving`** → **Run all** (order: Export → MLflow upgrade → Log → Register → Endpoint)
 
-**`05` 內建 Free Edition 修復**（無需手改）：
+**`05` has Free Edition fixes built in** (no manual changes needed):
 
-| 步驟 | 做法 |
+| Step | Approach |
 |------|------|
-| Gold export | driver `/tmp/gold_embeddings.parquet`（不用 `dbutils.fs` / DBFS） |
-| MLflow | cell：`%pip install --upgrade 'mlflow>=2.11.0'` + `restartPython()` |
-| Register | 先試 UC `workspace.default.justice_compass_rag`；S3 權限失敗則 fallback workspace `models:/...` URI |
-| Endpoint | REST API，`served_entities` 失敗自動試 `served_models` + `workload_size: Small` |
+| Gold export | driver `/tmp/gold_embeddings.parquet` (no `dbutils.fs` / DBFS) |
+| MLflow | cell: `%pip install --upgrade 'mlflow>=2.11.0'` + `restartPython()` |
+| Register | Try UC `workspace.default.justice_compass_rag` first; on S3 permission failure, fall back to the workspace `models:/...` URI |
+| Endpoint | REST API; if `served_entities` fails it automatically tries `served_models` + `workload_size: Small` |
 
-4. 若 endpoint cell 單獨失敗，重跑 **`06_create_serving_endpoint_api`**（會自動用 UC 最新 version，例如 v6）
+4. If the endpoint cell fails on its own, rerun **`06_create_serving_endpoint_api`** (it automatically uses the latest UC version, e.g. v6)
 
 **Free Edition UI bug**: Creating endpoint in Serving UI may show `Compute scale-out is required` (no Small/Medium field). Use notebook **`06`** or the REST API cell in **`05`** instead.
 
 If API create still fails:
 
 1. Check **Build logs** on the endpoint page
-2. Confirm model exists — UC name `workspace.default.justice_compass_rag` **或** workspace registry URI（register cell 印出的 `model_uri`）
+2. Confirm the model exists — UC name `workspace.default.justice_compass_rag` **or** the workspace registry URI (the `model_uri` printed by the register cell)
 3. Wait until endpoint status = **Ready** (cold start may take several minutes)
-4. Inference 時 pyfunc 需呼叫 Foundation Model — `justice_compass_rag.py` 已在 Serving 環境設 `MLFLOW_TRACKING_URI=databricks`
+4. At inference time, the pyfunc needs to call the Foundation Model — `justice_compass_rag.py` already sets `MLFLOW_TRACKING_URI=databricks` in the Serving environment
 
 Copy **invocation URL**, e.g.:
 
@@ -104,7 +104,7 @@ npx wrangler pages deploy ../pages --project-name=justice-compass
 
 ### Option C — GitHub Actions
 
-Add repo secret `CLOUDFLARE_API_TOKEN`, push to `dev` — workflow `.github/workflows/deploy-pages.yml`.
+Add repo secret `CLOUDFLARE_API_TOKEN`, push to `main` — workflow `.github/workflows/deploy-pages.yml`.
 
 ---
 
@@ -121,19 +121,19 @@ Add repo secret `CLOUDFLARE_API_TOKEN`, push to `dev` — workflow `.github/work
 | Free Edition endpoint create fails | Run **`06_create_serving_endpoint_api`** (REST API + `workload_size: Small`) |
 | `Model version '1' does not exist` | Run **`05`** Log & register with signature first; then **`06`** |
 | UC register / no signature | Fixed in **`05`** — `log_model` includes `signature` + `input_example` |
-| UC register S3 / permission error | **`05`** fallback — 用 workspace `model_uri`，endpoint 仍可用 |
+| UC register S3 / permission error | **`05`** falls back to the workspace `model_uri`; the endpoint still works |
 | FM auth in Serving container | Fixed — `_deploy_client()` sets `MLFLOW_TRACKING_URI=databricks` + MLflow version fallback |
-| `resources` param on log_model | **勿用** — MLflow 3.x UC bug；改 env auth（見 `05` 註解） |
-| Hardcoded model constants in `create_endpoint_api.py` | 已移除 — endpoint 參數由 **`05`/`06` config cell 傳入** |
+| `resources` param on log_model | **Do not use** — MLflow 3.x UC bug; use env auth instead (see `05` comments) |
+| Hardcoded model constants in `create_endpoint_api.py` | Removed — endpoint parameters are now passed in via the **`05`/`06` config cell** |
 | CORS error from Pages | Worker already sets `Access-Control-Allow-Origin: *` |
 
 ---
 
 ## Phase 2 done when
 
-- [x] Databricks endpoint **Ready** + invocations curl 有真實 answer
+- [x] Databricks endpoint **Ready** + invocations curl returns a real answer
 - [x] `curl Worker/query` returns `"mock": false`
 - [x] Pages URL loads UI and shows real citations
-- [x] Phase 2 驗收完成
+- [x] Phase 2 verified complete
 
-**Next**: Lakebase + Jobs — 詳見 `#016`（Lake↔Base 亮點、05/06 自動化、首頁 freshness）
+**Next**: Lakebase + Jobs — see `docs/LAKEBASE.md` and `docs/JOBS.md` (Lake↔Base highlights, 05/06 automation, homepage freshness)

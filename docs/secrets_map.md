@@ -1,7 +1,7 @@
 # Secrets Map
 
-> 本專案各組件資料流與所需 secrets / keys 一覽。  
-> 設定細節見 [SETUP.md](SETUP.md)、[DEPLOY_PHASE2.md](DEPLOY_PHASE2.md)、[LAKEBASE.md](LAKEBASE.md)、[`.env.example`](../.env.example)。
+> Overview of the data flow and required secrets / keys for each component in this project.
+> See [SETUP.md](SETUP.md), [DEPLOY_PHASE2.md](DEPLOY_PHASE2.md), [LAKEBASE.md](LAKEBASE.md), and [`.env.example`](../.env.example) for setup details.
 
 ---
 
@@ -9,7 +9,7 @@
 
 ```mermaid
 flowchart LR
-    subgraph local["本機開發"]
+    subgraph local["Local development"]
         devvars["worker/.dev.vars"]
     end
 
@@ -18,7 +18,7 @@ flowchart LR
     end
 
     subgraph cf["Cloudflare"]
-        pages["Pages<br/>(無 secrets)"]
+        pages["Pages<br/>(no secrets)"]
         worker["Worker"]
     end
 
@@ -31,7 +31,7 @@ flowchart LR
 
     sample["data/sample JSON"]
 
-    user["使用者"] --> pages
+    user["User"] --> pages
     pages --> worker
     worker -->|"DATABRICKS_SERVING_URL<br/>DATABRICKS_TOKEN"| serving
     worker -->|"WAREHOUSE_ID<br/>PIPELINE_RUNS_TABLE"| meta
@@ -47,28 +47,28 @@ flowchart LR
 
 ---
 
-## 各組件要什麼、放哪
+## What each component needs, and where it goes
 
-| 組件 | Secrets / Keys | 放哪 |
+| Component | Secrets / Keys | Where |
 |------|----------------|------|
-| **Cloudflare Worker**（必填 RAG） | `DATABRICKS_SERVING_URL`、`DATABRICKS_TOKEN` | `wrangler secret put` 或 `cloudflare/worker/.dev.vars` |
-| **Cloudflare Worker**（選填） | `API_KEY` | 同上 |
-| **Cloudflare Worker**（選填 `/meta` docs） | `DATABRICKS_WAREHOUSE_ID`、`LAKEBASE_PIPELINE_RUNS_TABLE` | 同上 |
-| **Cloudflare Worker**（Lakebase） | `LAKEBASE_HOST`、`LAKEBASE_DB`、`LAKEBASE_USER`、`LAKEBASE_PASSWORD` | 同上 — `query_logs` 寫入 + Synced Table corpus 統計 |
-| **Cloudflare Worker**（選填 corpus 表名） | `LAKEBASE_CASES_TABLE` | 預設 `"default".cases_meta_synced`（Synced Table）；勿用空的 `public.cases` |
-| **GitHub Actions** | `GEMINI_API_KEY`、`CLOUDFLARE_API_TOKEN` | Repo → Settings → Secrets |
-| **GitHub Actions**（prod pipeline） | `DATABRICKS_HOST`、`DATABRICKS_TOKEN`、`DATABRICKS_REPO_ID`、`DATABRICKS_PROD_JOB_ID` | 見 `databricks/prod_notebooks_job/README.md` |
-| **Databricks Notebooks / Jobs** | Lakebase 連線；`synced_table_uc_name`；`serving_*` | Databricks secret scope `justice-compass` |
-| **Cloudflare Pages** | — | 無 |
-| **Demo corpus** | — | Git `data/sample/`（無 API key） |
+| **Cloudflare Worker** (required for RAG) | `DATABRICKS_SERVING_URL`, `DATABRICKS_TOKEN` | `wrangler secret put` or `cloudflare/worker/.dev.vars` |
+| **Cloudflare Worker** (optional) | `API_KEY` | Same as above |
+| **Cloudflare Worker** (optional, `/meta` docs) | `DATABRICKS_WAREHOUSE_ID`, `LAKEBASE_PIPELINE_RUNS_TABLE` | Same as above |
+| **Cloudflare Worker** (Lakebase) | `LAKEBASE_HOST`, `LAKEBASE_DB`, `LAKEBASE_USER`, `LAKEBASE_PASSWORD` | Same as above — used for `query_logs` writes + Synced Table corpus count |
+| **Cloudflare Worker** (optional corpus table name) | `LAKEBASE_CASES_TABLE` | Defaults to `"default".cases_meta_synced` (Synced Table); do not use the empty `public.cases` |
+| **GitHub Actions** | `GEMINI_API_KEY`, `CLOUDFLARE_API_TOKEN` | Repo → Settings → Secrets |
+| **GitHub Actions** (prod pipeline) | `DATABRICKS_HOST`, `DATABRICKS_TOKEN`, `DATABRICKS_REPO_ID`, `DATABRICKS_PROD_JOB_ID` | See `databricks/prod_notebooks_job/README.md` |
+| **Databricks Notebooks / Jobs** | Lakebase connection; `synced_table_uc_name`; `serving_*` | Databricks secret scope `justice-compass` |
+| **Cloudflare Pages** | — | None |
+| **Demo corpus** | — | Git `data/sample/` (no API key) |
 
 ---
 
-## 快速對照
+## Quick reference
 
 ```
-worker/.dev.vars         →  DATABRICKS_* / API_KEY / LAKEBASE_*（本機 Worker）
-wrangler secret put      →  同上（已部署 Worker）
-GitHub Secrets           →  GEMINI_API_KEY / CLOUDFLARE_API_TOKEN / DATABRICKS_*（prod GHA）
-Databricks secret scope  →  Lakebase 帳密（notebook 用）
+worker/.dev.vars         →  DATABRICKS_* / API_KEY / LAKEBASE_* (local Worker)
+wrangler secret put      →  same, for the deployed Worker
+GitHub Secrets           →  GEMINI_API_KEY / CLOUDFLARE_API_TOKEN / DATABRICKS_* (prod GHA)
+Databricks secret scope  →  Lakebase credentials (used by notebooks)
 ```

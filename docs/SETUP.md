@@ -8,7 +8,7 @@ Complete these before Phase 1. All free tiers unless noted.
 - [x] Push local code
 - [x] Enable Actions
 - [ ] Add secrets when ready:
-  - `GEMINI_API_KEY` (Phase 4) — ✅ key in GitHub Secrets；`ai-pr-review.yml` 已就緒
+  - `GEMINI_API_KEY` (Phase 4) — ✅ key in GitHub Secrets; `ai-pr-review.yml` ready
   - `CLOUDFLARE_API_TOKEN` (Phase 3 CD deploy) — ✅ Pages + Worker CD
 
 ## 2. Cloudflare (Free)
@@ -17,7 +17,7 @@ Complete these before Phase 1. All free tiers unless noted.
 - [x] Wrangler login + deploy Worker
 - [x] **Worker URL**: `https://justice-compass-api.justicebrobro.workers.dev`
 - [x] Create **Pages** project → connect GitHub → build output: `cloudflare/pages` — Phase 2 ✅
-- [x] Worker live RAG：`DATABRICKS_SERVING_URL` + `DATABRICKS_TOKEN` — Phase 2 ✅
+- [x] Worker live RAG: `DATABRICKS_SERVING_URL` + `DATABRICKS_TOKEN` — Phase 2 ✅
 
 Verify:
 
@@ -37,21 +37,21 @@ curl "https://justice-compass-api.justicebrobro.workers.dev/query?q=liquor+licen
 - [x] Run `02_silver_transform` → `silver_chunks` (5 chunks)
 - [x] Run `03_gold_embed` → `gold_embeddings`
 - [x] Run `04_rag_serving` → notebook RAG demo
-- [x] Run **`05_deploy_serving`** → Model Serving endpoint **Ready**（Free Edition REST API 路徑，見 [`docs/DEPLOY_PHASE2.md`](DEPLOY_PHASE2.md)）
-- [x] **Lakebase**（Free Edition：1 project，**必做**）→ project + schema + UC 註冊 ✅；見 [`docs/LAKEBASE.md`](LAKEBASE.md)
-- [x] **Lakebase 認證**：自訂 Postgres ROLE + native PASSWORD（**非 OAuth**）；secrets 已設定於 Databricks `justice-compass` scope **與** Cloudflare Worker ✅
-- [x] **AI Search** — **不做**；RAG 用 Delta cosine + Model Serving（已驗收）
-- [x] **Jobs**（Free Edition：最多 5 concurrent tasks，**必做**）→ **`08`** + Run now **01→03** ✅；見 [`docs/JOBS.md`](JOBS.md)
+- [x] Run **`05_deploy_serving`** → Model Serving endpoint **Ready** (Free Edition REST API path, see [`docs/DEPLOY_PHASE2.md`](DEPLOY_PHASE2.md))
+- [x] **Lakebase** (Free Edition: 1 project, **required**) → project + schema + UC registration ✅; see [`docs/LAKEBASE.md`](LAKEBASE.md)
+- [x] **Lakebase auth**: custom Postgres ROLE + native PASSWORD (**not OAuth**); secrets configured in the Databricks `justice-compass` scope **and** the Cloudflare Worker ✅
+- [x] **AI Search** — **not used**; RAG uses Delta cosine + Model Serving (verified)
+- [x] **Jobs** (Free Edition: up to 5 concurrent tasks, **required**) → **`08`** + Run now **01→03** ✅; see [`docs/JOBS.md`](JOBS.md)
 
-**Free Edition 配額**（2026-06 更新）：已含 Lakebase / AI Search / Jobs，詳見 [官方限制](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations)。
+**Free Edition quotas** (updated 2026-06): now includes Lakebase / AI Search / Jobs — see [official limits](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations).
 
-**Free Edition 儲存（勿用 FileStore / Public DBFS）**
+**Free Edition storage (avoid FileStore / public DBFS)**
 
-| 用途 | 正確做法 | 勿用（Phase 0 舊流程） |
+| Purpose | Correct approach | Avoid (legacy Phase 0 flow) |
 |------|----------|------------------------|
-| Sample JSON | Git folder `data/sample/` | `/FileStore/justice-compass/sample/` 手動 upload |
-| Medallion 表 | Delta `bronze_cases` 等 | 透過 DBFS 搬 JSON |
-| Serving artifact | driver `/tmp/*.parquet` + MLflow | `dbutils.fs.cp` 到 DBFS |
+| Sample JSON | Git folder `data/sample/` | Manual upload to `/FileStore/justice-compass/sample/` |
+| Medallion tables | Delta `bronze_cases`, etc. | Moving JSON through DBFS |
+| Serving artifact | driver `/tmp/*.parquet` + MLflow | `dbutils.fs.cp` to DBFS |
 
 **Git folder workflow**
 
@@ -59,7 +59,7 @@ curl "https://justice-compass-api.justicebrobro.workers.dev/query?q=liquor+licen
 2. Databricks Git folder → **Pull**
 3. Run notebooks `01` → `05` in order
 
-**Phase 3 freshness** ✅：首頁 **Model / Docs last updated** via Worker `/meta` + UC Lakebase — see `docs/LAKEBASE.md`.
+**Phase 3 freshness** ✅: homepage **Model / Docs last updated** via Worker `/meta` + UC Lakebase — see `docs/LAKEBASE.md`.
 
 
 
@@ -77,7 +77,7 @@ curl "https://justice-compass-api.justicebrobro.workers.dev/query?q=liquor+licen
 
 > Corpus is portfolio MVP only. Citations in live RAG come from **Gold retrieval**, not Lakebase reads.
 
-Secrets 總覽見 [`docs/secrets_map.md`](secrets_map.md)。
+See [`docs/secrets_map.md`](secrets_map.md) for the full secrets overview.
 
 
 

@@ -1,19 +1,19 @@
-# Databricks Jobs — 編排範圍與自動化
+# Databricks Jobs — Orchestration Scope and Automation
 
-> Prod 全鏈由 **GHA 每 2h** 觸發（見 README Step 8）；notebook 統一在 `databricks/prod_notebooks_job/`。
+> The full prod chain is triggered by **GHA every 2h** (see README Step 8); prod notebooks live under `databricks/prod_notebooks_job/`.
 
 ---
 
-## 兩條 Job
+## Two Jobs
 
-| Job | 路徑 | Tasks | 觸發 |
+| Job | Path | Tasks | Trigger |
 |-----|------|-------|------|
-| **`justice-compass-medallion`** | `databricks/notebooks/` | 01 → 02 → 03 | 手動 / `08_create_medallion_job` |
-| **`justice-compass-prod-pipeline`** | `databricks/prod_notebooks_job/` | 01 → 02 → 03 → 05 → 09 | **GHA** `prod-seed-and-pipeline`（無 Job schedule） |
+| **`justice-compass-medallion`** | `databricks/notebooks/` | 01 → 02 → 03 | Manual / `08_create_medallion_job` |
+| **`justice-compass-prod-pipeline`** | `databricks/prod_notebooks_job/` | 01 → 02 → 03 → 05 → 09 | **GHA** `prod-seed-and-pipeline` (no Job-level schedule) |
 
 ---
 
-## Prod 自動化（GHA → Databricks）
+## Prod automation (GHA → Databricks)
 
 ```mermaid
 flowchart LR
@@ -24,91 +24,91 @@ flowchart LR
   run --> job["justice-compass-prod-pipeline"]
 ```
 
-Workflow：`.github/workflows/prod-seed-and-pipeline.yml`  
-建立 Job：`create_prod_pipeline_job`（見 `databricks/prod_notebooks_job/README.md`）
+Workflow: `.github/workflows/prod-seed-and-pipeline.yml`
+Job creation: `create_prod_pipeline_job` (see `databricks/prod_notebooks_job/README.md`)
 
 ### GitHub Secrets
 
-| Secret | 用途 |
+| Secret | Purpose |
 |--------|------|
 | `DATABRICKS_HOST` | Workspace URL |
-| `DATABRICKS_TOKEN` | PAT（Repos + Jobs） |
+| `DATABRICKS_TOKEN` | PAT (Repos + Jobs) |
 | `DATABRICKS_REPO_ID` | Git folder repo id |
 | `DATABRICKS_PROD_JOB_ID` | Prod Job id |
 
 ---
 
-## Dev Job：`justice-compass-medallion`（01 → 03）
+## Dev Job: `justice-compass-medallion` (01 → 03)
 
-| Notebook | 做什麼 | Job |
+| Notebook | What it does | In Job |
 |----------|--------|-----|
 | **01** `bronze_ingest` | Sample JSON → `bronze_cases` | ✅ |
 | **02** `silver_transform` | chunk → `silver_chunks` | ✅ |
 | **03** `gold_embed` | Embedding → `gold_embeddings` | ✅ |
-| **04** `rag_serving` | 互動 demo | ❌ |
-| **05** `deploy_serving` | MLflow + Serving | ❌（prod Job 內） |
-| **06** | Endpoint REST 補救 | ❌ 手動 |
+| **04** `rag_serving` | Interactive demo | ❌ |
+| **05** `deploy_serving` | MLflow + Serving | ❌ (part of the prod Job) |
+| **06** | Endpoint REST fallback | ❌ manual |
 
-建立：Git Pull → **`08_create_medallion_job`**
+Create it: Git Pull → **`08_create_medallion_job`**
 
 ---
 
-## Prod notebooks（`prod_notebooks_job/`）
+## Prod notebooks (`prod_notebooks_job/`)
 
-| Notebook | 與 dev 差異 |
+| Notebook | Difference from dev |
 |----------|-------------|
-| **01–03** | 複製自 dev；path marker → `prod_notebooks_job` |
-| **05** | 同上；每輪 GHA 可能 re-deploy Serving |
-| **09_sync_cases_prod** | **精簡**：`cases_metadata` + trigger Synced Table；無 UI setup / `public.cases` fallback |
+| **01–03** | Copied from dev; path marker → `prod_notebooks_job` |
+| **05** | Same as above; each GHA cycle may re-deploy Serving |
+| **09_sync_cases_prod** | **Streamlined**: `cases_metadata` + trigger the Synced Table; no UI setup / `public.cases` fallback |
 
-一次性 Synced Table UI：[`prod_notebooks_job/SETUP.md`](../databricks/prod_notebooks_job/SETUP.md)
-
----
-
-## 為什麼 04 不在任何 Job？
-
-**04** 是開發者試問 RAG 的互動 notebook，不產生 batch 產物。
+One-time Synced Table UI setup: [`prod_notebooks_job/SETUP.md`](../databricks/prod_notebooks_job/SETUP.md)
 
 ---
 
-## Serving 更新（prod 05）
+## Why is `04` not part of any Job?
 
-| 原則 | 說明 |
+**04** is an interactive notebook developers use to try out RAG questions manually; it does not produce any batch artifact.
+
+---
+
+## Serving updates (prod `05`)
+
+| Principle | Explanation |
 |------|------|
-| **Worker URL 不變** | `DATABRICKS_SERVING_URL` 固定 endpoint |
-| **可觀測** | `pipeline_runs` layer=`serving` |
-| **失敗可回退** | 新版本 build 失敗時舊 entity 通常仍 serve |
+| **Worker URL never changes** | `DATABRICKS_SERVING_URL` points to a fixed endpoint |
+| **Observable** | `pipeline_runs` records a `serving` layer row |
+| **Rollback-safe** | If a new version's build fails, the previous entity usually keeps serving |
 
 ---
 
-## 典型操作
+## Typical workflows
 
-### 開發
+### Development
 
-1. 改 `data/sample/` 或 notebook → Pull → 手動 medallion Job 或 01→03  
-2. 需要對外更新 → 手動 `05`（dev notebook）
+1. Edit `data/sample/` or a notebook → Pull → run the medallion Job manually, or 01→03 individually
+2. Need to push an update live → run `05` manually (dev notebook)
 
-### Prod（設定完成後）
+### Prod (once set up)
 
-1. GHA 每 2h 自動：seed → push → Pull → prod Job  
-2. 首頁 `/meta` corpus / model 時間隨 Job 更新
+1. Every 2h, GHA automatically: seeds → pushes → Pulls → runs the prod Job
+2. Homepage `/meta` corpus / model timestamps update as the Job runs
 
 ---
 
-## Free Edition 配額
+## Free Edition quotas
 
-- Jobs：prod 5 tasks；medallion 3 tasks（分開 Job，各 `max_concurrent_runs: 1`）
-- Prod 每 2h 跑 **05** 需注意 Serving 配額
+- Jobs: prod uses 5 tasks; medallion uses 3 tasks (separate Jobs, each with `max_concurrent_runs: 1`)
+- Running **05** every 2h in prod — keep an eye on Serving quota
 
 ---
 
 ## Checklist
 
-> 下面是本專案（作者自己的 workspace）目前的完成狀態，不是你 fork 之後要打勾的清單——你的 setup 步驟請看主 README。
+> This reflects the current state of this project's own workspace (the author's), not a checklist for you to complete after forking — for your own setup steps, see the main README.
 
-- [x] Medallion Job 01→03  
-- [x] Prod Job 01→05→09 + GHA workflow（secrets 檢查 + Job 輪詢）  
-- [x] Synced Table `workspace.default.cases_meta_synced` + `INSERT OVERWRITE` 09  
-- [ ] Databricks scope `synced_table_uc_name` + 重跑 `create_prod_pipeline_job`  
-- [ ] `workflow_dispatch` 驗收一輪全綠  
-- [x] Worker `/meta` 預設 `cases_meta_synced`
+- [x] Medallion Job 01→03
+- [x] Prod Job 01→05→09 + GHA workflow (secrets check + Job polling)
+- [x] Synced Table `workspace.default.cases_meta_synced` + `INSERT OVERWRITE` in `09`
+- [ ] Databricks scope `synced_table_uc_name` + rerun `create_prod_pipeline_job`
+- [ ] One fully green `workflow_dispatch` run
+- [x] Worker `/meta` defaults to `cases_meta_synced`

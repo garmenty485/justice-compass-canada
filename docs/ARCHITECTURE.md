@@ -25,7 +25,7 @@ MVP tables in **default catalog** (Free Edition, `workspace.default`) — no sep
 
 **Not used on Free Edition:** manual `/FileStore/justice-compass/...` upload; public DBFS staging (`dbutils.fs` to `/tmp/` on DBFS).
 
-## Lakebase (Lake ↔ Base) — **必做**
+## Lakebase (Lake ↔ Base) — **required**
 
 Lakebase is **not** a standalone Postgres sidecar. Official model: [Lakehouse integration](https://docs.databricks.com/aws/en/oltp/projects/lakehouse-integrations).
 
@@ -44,10 +44,10 @@ Databricks Free Edition **includes** Lakebase and Jobs with quotas. See [officia
 
 | Component | Free Edition | MVP default |
 |-----------|--------------|-------------|
-| Medallion pipeline | ✅ notebooks 01→03 | **Job** `justice-compass-medallion`（見 [`docs/JOBS.md`](JOBS.md)） |
+| Medallion pipeline | ✅ notebooks 01→03 | **Job** `justice-compass-medallion` (see [`docs/JOBS.md`](JOBS.md)) |
 | Embeddings | ✅ Delta `gold_embeddings` | Always |
 | Vector retrieval | Delta cosine | **`04` notebook + Serving pyfunc** — **no AI Search** |
-| Metadata / logs | ✅ Lakebase (1 project) | **必做** — schema ready |
+| Metadata / logs | ✅ Lakebase (1 project) | **Required** — schema ready |
 | Orchestration | ✅ Jobs (5 concurrent tasks) | **01→03 now**; **05/06 auto later** (zero-downtime, [`docs/JOBS.md`](JOBS.md)) |
 | Serving deploy | ✅ Model Serving | **`05` manual now** → future Job task after gold |
 | Homepage freshness | Worker `/meta` | **Model + Docs + Corpus** (`case_count` from Lakebase `cases`) |
