@@ -1,5 +1,7 @@
 # Justice Compass — 操作步驟（中文簡潔版）
 
+🔗 **[Live demo](https://justice-compass.pages.dev/)** — 作者本人的部署（這是作者自己的實例，不是你的——部署自己的之前先看下面的**必改清單**）。
+
 [← English full README](README.md)
 
 > 這份文件只列**操作步驟**，不重複專案介紹（介紹請看英文版開頭）。全部帳號皆為免費方案。

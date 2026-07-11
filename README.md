@@ -1,5 +1,7 @@
 # Justice Compass 🍁⚖️
 
+🔗 **[Live demo](https://justice-compass.pages.dev/)** — the author's own deployment. (This is the author's instance, not yours — see the **Personalization checklist** below before you deploy your own.)
+
 🀄 **[中文簡潔版](README.zh-TW.md)** — 只列操作步驟，跳過介紹，直接看怎麼跑起來。
 
 A Canadian legal case **RAG (Retrieval-Augmented Generation)** assistant, focused on **BC Liquor Control and Licensing Act** jurisprudence — built end-to-end on a **Databricks Lakehouse** (Medallion architecture + Lakebase) and served through **Cloudflare's edge** (Workers + Pages), with **AI-reviewed CI/CD** on every pull request.
