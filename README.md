@@ -29,22 +29,7 @@ Ask a question like *"When can BC revoke a liquor licence?"* and get a plain-lan
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    U[User] --> P["Cloudflare Pages<br/>(vanilla JS UI)"]
-    P --> W["Cloudflare Worker<br/>API proxy · auth · CORS"]
-    W -->|RAG query| S["Databricks Model Serving<br/>gold_embeddings + Foundation Model"]
-    W -->|audit insert| LB[("Lakebase Postgres<br/>query_logs")]
-    W -->|freshness read| LB
-
-    GHA["GitHub Action<br/>every 2h: seed case + run Job"] -.->|new case JSON| B
-
-    subgraph DBX["Databricks Free Edition"]
-        B[Bronze] --> SIL[Silver] --> G[Gold]
-        G --> S
-        B -. Synced Table .-> LB
-    end
-```
+![Architecture: Cloudflare Pages/Worker ↔ Databricks Model Serving + Lakebase, with Medallion pipeline and GitHub Action seeding](gif/new_flow_chart.jpg)
 
 1. User asks a question on the **Pages** UI.
 2. The **Worker** forwards it to a **Databricks Model Serving** endpoint (or returns a mock answer if not configured yet).

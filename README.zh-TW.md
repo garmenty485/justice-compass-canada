@@ -8,22 +8,7 @@
 
 ![問一個問題、拿到有引用來源的回答，首頁還有 freshness 時間顯示](gif/01-hero-demo.gif)
 
-```mermaid
-flowchart LR
-    U[User] --> P["Cloudflare Pages<br/>(vanilla JS UI)"]
-    P --> W["Cloudflare Worker<br/>API proxy · auth · CORS"]
-    W -->|RAG query| S["Databricks Model Serving<br/>gold_embeddings + Foundation Model"]
-    W -->|audit insert| LB[("Lakebase Postgres<br/>query_logs")]
-    W -->|freshness read| LB
-
-    GHA["GitHub Action<br/>every 2h: seed case + run Job"] -.->|new case JSON| B
-
-    subgraph DBX["Databricks Free Edition"]
-        B[Bronze] --> SIL[Silver] --> G[Gold]
-        G --> S
-        B -. Synced Table .-> LB
-    end
-```
+![架構圖：Cloudflare Pages/Worker ↔ Databricks Model Serving + Lakebase，含 Medallion pipeline 與 GitHub Action 種子流程](gif/new_flow_chart.jpg)
 
 ---
 
